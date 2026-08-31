@@ -196,19 +196,8 @@ export const app = new Elysia()
 
       const hasSignatureImage = !!(body.signatureImage && body.signatureImage.startsWith('data:image/'));
 
-      // Draw visible signature container box on the first page
+      // Draw clean signature overlay without border box
       if (hasSignatureImage) {
-        firstPage.drawRectangle({
-          x: 45,
-          y: 35,
-          width: 320,
-          height: 90,
-          borderColor: rgb(0.12, 0.44, 0.98),
-          borderWidth: 1.5,
-          color: rgb(0.96, 0.98, 1.0),
-          opacity: 0.95,
-        });
-
         try {
           const base64Data = body.signatureImage!.replace(/^data:image\/\w+;base64,/, '');
           const imageBytes = Uint8Array.from(Buffer.from(base64Data, 'base64'));
@@ -235,26 +224,15 @@ export const app = new Elysia()
 
         firstPage.drawText(`Date: ${displayDate} • Ref: ${params.id.slice(0, 8)}`, {
           x: 55,
-          y: 39,
+          y: 38,
           size: 8,
           font: helvetica,
           color: rgb(0.4, 0.4, 0.4),
         });
       } else {
-        firstPage.drawRectangle({
-          x: 45,
-          y: 40,
-          width: 320,
-          height: 55,
-          borderColor: rgb(0.12, 0.44, 0.98),
-          borderWidth: 1.5,
-          color: rgb(0.96, 0.98, 1.0),
-          opacity: 0.95,
-        });
-
         firstPage.drawText(`Signed by: ${body.signerName}`, {
           x: 55,
-          y: 68,
+          y: 55,
           size: 11,
           font: helveticaBold,
           color: rgb(0.1, 0.1, 0.1),
@@ -262,7 +240,7 @@ export const app = new Elysia()
 
         firstPage.drawText(`Date: ${displayDate} • Ref: ${params.id.slice(0, 8)}`, {
           x: 55,
-          y: 50,
+          y: 40,
           size: 8.5,
           font: helvetica,
           color: rgb(0.4, 0.4, 0.4),

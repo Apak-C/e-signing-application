@@ -100,7 +100,6 @@ function InteractiveSignerPortal({ documentId, onReturnHome }: { documentId: str
   const [error, setError] = useState<string | null>(null);
 
   const [signerName, setSignerName] = useState('');
-  const [signMode, setSignMode] = useState<'type' | 'draw'>('type');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const [pdfTimestamp, setPdfTimestamp] = useState(Date.now());
@@ -137,7 +136,7 @@ function InteractiveSignerPortal({ documentId, onReturnHome }: { documentId: str
 
   // Canvas Setup
   useEffect(() => {
-    if (signMode === 'draw' && canvasRef.current) {
+    if (canvasRef.current) {
       const canvas = canvasRef.current;
       const ctx = canvas.getContext('2d');
       if (ctx) {
@@ -147,7 +146,7 @@ function InteractiveSignerPortal({ documentId, onReturnHome }: { documentId: str
         ctx.lineJoin = 'round';
       }
     }
-  }, [signMode]);
+  }, [loading, isCompleted]);
 
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
@@ -198,7 +197,7 @@ function InteractiveSignerPortal({ documentId, onReturnHome }: { documentId: str
     setSubmitError(null);
 
     let signatureImage: string | undefined = undefined;
-    if (signMode === 'draw' && canvasRef.current && hasDrawn) {
+    if (canvasRef.current && hasDrawn) {
       signatureImage = canvasRef.current.toDataURL('image/png');
     }
 
@@ -354,104 +353,52 @@ function InteractiveSignerPortal({ documentId, onReturnHome }: { documentId: str
                   />
                 </div>
 
-                {/* Signature Style Selection */}
+                {/* Drawn Signature Pad */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#cbd5e1', marginBottom: '6px' }}>
-                    Signature Method
-                  </label>
-                  
-                  <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
-                    <button
-                      type="button"
-                      onClick={() => setSignMode('type')}
-                      style={{
-                        flex: 1,
-                        padding: '8px',
-                        borderRadius: '6px',
-                        backgroundColor: signMode === 'type' ? '#2563eb' : '#1e293b',
-                        color: '#f8fafc',
-                        border: '1px solid ' + (signMode === 'type' ? '#3b82f6' : '#334155'),
-                        fontSize: '13px',
-                        fontWeight: 500
-                      }}
-                    >
-                      Type Signature
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setSignMode('draw')}
-                      style={{
-                        flex: 1,
-                        padding: '8px',
-                        borderRadius: '6px',
-                        backgroundColor: signMode === 'draw' ? '#2563eb' : '#1e293b',
-                        color: '#f8fafc',
-                        border: '1px solid ' + (signMode === 'draw' ? '#3b82f6' : '#334155'),
-                        fontSize: '13px',
-                        fontWeight: 500
-                      }}
-                    >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                    <label style={{ fontSize: '13px', fontWeight: 500, color: '#cbd5e1' }}>
                       Draw Signature
+                    </label>
+                    <button
+                      type="button"
+                      onClick={clearCanvas}
+                      style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '3px 8px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '4px', color: '#94a3b8', fontSize: '11px', cursor: 'pointer' }}
+                    >
+                      <Eraser size={12} /> Clear
                     </button>
                   </div>
-
-                  {signMode === 'type' ? (
-                    <div style={{ padding: '16px', borderRadius: '8px', backgroundColor: '#1e293b', border: '1px solid #334155', textAlign: 'center' }}>
-                      <div className="signature-font-caveat" style={{ fontSize: '28px', color: '#60a5fa', minHeight: '38px' }}>
-                        {signerName || 'Signature Preview'}
+                  
+                  <div style={{ position: 'relative', border: '1px solid #334155', borderRadius: '8px', backgroundColor: '#1e293b', overflow: 'hidden' }}>
+                    <canvas
+                      ref={canvasRef}
+                      width={360}
+                      height={120}
+                      onMouseDown={startDrawing}
+                      onMouseMove={draw}
+                      onMouseUp={stopDrawing}
+                      onMouseLeave={stopDrawing}
+                      onTouchStart={startDrawing}
+                      onTouchMove={draw}
+                      onTouchEnd={stopDrawing}
+                      style={{ width: '100%', height: '120px', display: 'block', cursor: 'crosshair', touchAction: 'none' }}
+                    />
+                    {!hasDrawn && (
+                      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', pointerEvents: 'none', color: '#64748b', fontSize: '12px' }}>
+                        Draw your signature here
                       </div>
-                      <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>Cursive Handwriting Font</div>
-                    </div>
-                  ) : (
-                    <div>
-                      <div style={{ position: 'relative', border: '1px solid #334155', borderRadius: '8px', backgroundColor: '#1e293b', overflow: 'hidden' }}>
-                        <canvas
-                          ref={canvasRef}
-                          width={360}
-                          height={120}
-                          onMouseDown={startDrawing}
-                          onMouseMove={draw}
-                          onMouseUp={stopDrawing}
-                          onMouseLeave={stopDrawing}
-                          onTouchStart={startDrawing}
-                          onTouchMove={draw}
-                          onTouchEnd={stopDrawing}
-                          style={{ width: '100%', height: '120px', display: 'block', cursor: 'crosshair', touchAction: 'none' }}
-                        />
-                        {!hasDrawn && (
-                          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', pointerEvents: 'none', color: '#64748b', fontSize: '12px' }}>
-                            Draw signature here
-                          </div>
-                        )}
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '6px' }}>
-                        <button
-                          type="button"
-                          onClick={clearCanvas}
-                          style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 8px', backgroundColor: '#334155', border: 'none', borderRadius: '4px', color: '#cbd5e1', fontSize: '11px' }}
-                        >
-                          <Eraser size={12} /> Clear
-                        </button>
-                      </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
 
                 {/* Stamping Preview Box */}
                 <div style={{ padding: '14px', borderRadius: '8px', backgroundColor: '#0f172a', border: '1px dashed #3b82f6' }}>
                   <div style={{ fontSize: '11px', color: '#93c5fd', fontWeight: 600, marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <Sparkles size={13} /> Official Signature Stamp (Page 1):
+                    <Sparkles size={13} /> Document Signature Overlay Preview:
                   </div>
                   <div style={{ padding: '10px 12px', backgroundColor: '#1e293b', borderRadius: '6px', borderLeft: '3px solid #3b82f6' }}>
-                    {signMode === 'type' ? (
-                      <div className="signature-font-caveat" style={{ fontSize: '24px', color: '#60a5fa', marginBottom: '2px' }}>
-                        {signerName || 'Signature'}
-                      </div>
-                    ) : (
-                      <div style={{ fontSize: '12px', color: '#60a5fa', fontWeight: 600, marginBottom: '2px' }}>
-                        [Drawn Signature Image]
-                      </div>
-                    )}
+                    <div style={{ fontSize: '12px', color: '#60a5fa', fontWeight: 600, marginBottom: '2px' }}>
+                      {hasDrawn ? '✓ Drawn Signature Captured' : '[Drawn Signature Image]'}
+                    </div>
                     <div style={{ fontSize: '13px', fontWeight: 600, color: '#f8fafc' }}>Signed by: {signerName || '(Your name)'}</div>
                     <div style={{ fontSize: '10.5px', color: '#94a3b8', marginTop: '2px' }}>Date: {new Date().toLocaleString()}</div>
                   </div>
