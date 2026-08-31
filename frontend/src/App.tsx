@@ -553,7 +553,6 @@ function RequesterDashboard({ onNavigateToSign }: { onNavigateToSign: (docId: st
   // Documents Activity List
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
   const [loadingDocs, setLoadingDocs] = useState(false);
-  const [copiedLink, setCopiedLink] = useState<string | null>(null);
 
   // Fetch document list
   const fetchDocuments = () => {
@@ -631,12 +630,6 @@ function RequesterDashboard({ onNavigateToSign }: { onNavigateToSign: (docId: st
     } finally {
       setIsUploading(false);
     }
-  };
-
-  const copyToClipboard = (text: string, id: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedLink(id);
-    setTimeout(() => setCopiedLink(null), 2500);
   };
 
   const handleDeleteDocument = async (docId: string, e?: React.MouseEvent) => {
@@ -856,15 +849,9 @@ function RequesterDashboard({ onNavigateToSign }: { onNavigateToSign: (docId: st
                     <div style={{ display: 'flex', gap: '6px' }}>
                       <button
                         onClick={() => onNavigateToSign(item.id)}
-                        style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 8px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '4px', border: 'none', fontSize: '11px', fontWeight: 600 }}
+                        style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '5px 10px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '4px', border: 'none', fontSize: '11px', fontWeight: 600 }}
                       >
-                        <ExternalLink size={12} /> Sign View
-                      </button>
-                      <button
-                        onClick={() => copyToClipboard(item.signUrl, item.id)}
-                        style={{ padding: '4px 8px', backgroundColor: '#334155', color: '#f8fafc', borderRadius: '4px', border: 'none', fontSize: '11px' }}
-                      >
-                        {copiedLink === item.id ? 'Copied' : 'Copy'}
+                        <ExternalLink size={12} /> Sign Now
                       </button>
                     </div>
                   </div>
@@ -1011,37 +998,22 @@ function RequesterDashboard({ onNavigateToSign }: { onNavigateToSign: (docId: st
                               <Download size={13} /> Download Signed PDF
                             </a>
                           ) : (
-                            <>
-                              <button
-                                onClick={() => onNavigateToSign(d.id)}
-                                style={{
-                                  display: 'inline-flex',
-                                  alignItems: 'center',
-                                  gap: '4px',
-                                  padding: '6px 10px',
-                                  backgroundColor: '#1e293b',
-                                  border: '1px solid #334155',
-                                  borderRadius: '6px',
-                                  color: '#93c5fd',
-                                  fontSize: '12px'
-                                }}
-                              >
-                                Sign <ChevronRight size={12} />
-                              </button>
-                              <button
-                                onClick={() => copyToClipboard(`http://localhost:5173/sign/${d.id}`, d.id)}
-                                style={{
-                                  padding: '6px 10px',
-                                  backgroundColor: '#1e293b',
-                                  border: '1px solid #334155',
-                                  borderRadius: '6px',
-                                  color: '#94a3b8',
-                                  fontSize: '12px'
-                                }}
-                              >
-                                {copiedLink === d.id ? 'Copied' : 'Copy'}
-                              </button>
-                            </>
+                            <button
+                              onClick={() => onNavigateToSign(d.id)}
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                padding: '6px 12px',
+                                backgroundColor: '#1e293b',
+                                border: '1px solid #334155',
+                                borderRadius: '6px',
+                                color: '#93c5fd',
+                                fontSize: '12px'
+                              }}
+                            >
+                              Sign <ChevronRight size={12} />
+                            </button>
                           )}
 
                           {/* Close/Remove Document Button */}
