@@ -836,7 +836,7 @@ function RequesterDashboard({ onNavigateToSign }: { onNavigateToSign: (docId: st
               </h2>
               {documents.length > 0 && (
                 <span style={{ fontSize: '12px', padding: '2px 8px', borderRadius: '12px', backgroundColor: '#1e293b', border: '1px solid #334155', color: '#93c5fd', fontWeight: 600 }}>
-                  {documents.length} documents {documents.length > 10 ? '• Scrollable' : ''}
+                  {documents.length} documents • Scrollable View
                 </span>
               )}
             </div>
@@ -892,14 +892,16 @@ function RequesterDashboard({ onNavigateToSign }: { onNavigateToSign: (docId: st
             className="custom-scrollbar"
             style={{ 
               overflowX: 'auto',
-              overflowY: documents.length > 10 ? 'auto' : 'visible',
-              maxHeight: documents.length > 10 ? '540px' : 'none',
-              paddingRight: documents.length > 10 ? '4px' : '0',
+              overflowY: 'auto',
+              maxHeight: '440px',
+              border: '1px solid #1f293d',
+              borderRadius: '8px',
+              position: 'relative'
             }}
           >
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
-              <thead style={{ position: 'sticky', top: 0, backgroundColor: '#111827', zIndex: 10 }}>
-                <tr style={{ borderBottom: '1px solid #1f293d', color: '#94a3b8' }}>
+              <thead style={{ position: 'sticky', top: 0, backgroundColor: '#111827', zIndex: 10, borderBottom: '2px solid #1f293d' }}>
+                <tr style={{ color: '#94a3b8' }}>
                   <th style={{ padding: '12px 14px', backgroundColor: '#111827' }}>Document Name</th>
                   <th style={{ padding: '12px 14px', backgroundColor: '#111827' }}>Target Signer</th>
                   <th style={{ padding: '12px 14px', backgroundColor: '#111827' }}>Status</th>
