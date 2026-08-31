@@ -46,12 +46,16 @@ describe("BlockSign Backend API", () => {
     expect(fileStreamRes.headers.get("Content-Type")).toBe("application/pdf");
     expect(fileStreamRes.headers.get("Content-Disposition")).toContain("inline");
 
-    // 4. Sign document
+    // 4. Sign document with signature image
+    const samplePng = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
     const signRes = await app.handle(
       new Request(`http://localhost/api/sign/${docId1}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ signerName: "Alex Vance" }),
+        body: JSON.stringify({ 
+          signerName: "Alex Vance",
+          signatureImage: samplePng
+        }),
       })
     );
     const signData = await signRes.json();

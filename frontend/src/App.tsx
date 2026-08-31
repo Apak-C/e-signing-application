@@ -197,11 +197,19 @@ function InteractiveSignerPortal({ documentId, onReturnHome }: { documentId: str
     setIsSubmitting(true);
     setSubmitError(null);
 
+    let signatureImage: string | undefined = undefined;
+    if (signMode === 'draw' && canvasRef.current && hasDrawn) {
+      signatureImage = canvasRef.current.toDataURL('image/png');
+    }
+
     try {
       const res = await fetch(`${API_BASE}/api/sign/${documentId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ signerName: signerName.trim() }),
+        body: JSON.stringify({ 
+          signerName: signerName.trim(),
+          signatureImage
+        }),
       });
 
       const data = await res.json().catch(() => null);
@@ -429,14 +437,22 @@ function InteractiveSignerPortal({ documentId, onReturnHome }: { documentId: str
                   )}
                 </div>
 
-                {/* Stamping Verification Badge Preview */}
+                {/* Stamping Preview Box */}
                 <div style={{ padding: '14px', borderRadius: '8px', backgroundColor: '#0f172a', border: '1px dashed #3b82f6' }}>
                   <div style={{ fontSize: '11px', color: '#93c5fd', fontWeight: 600, marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <Sparkles size={13} /> Stamped on Page 1:
+                    <Sparkles size={13} /> Official Signature Stamp (Page 1):
                   </div>
                   <div style={{ padding: '10px 12px', backgroundColor: '#1e293b', borderRadius: '6px', borderLeft: '3px solid #3b82f6' }}>
-                    <div style={{ fontSize: '11px', fontWeight: 700, color: '#3b82f6' }}>[VERIFIED] Digitally Signed with BlockSign</div>
-                    <div style={{ fontSize: '13px', fontWeight: 600, color: '#f8fafc', marginTop: '2px' }}>Signed by: {signerName || '(Your name)'}</div>
+                    {signMode === 'type' ? (
+                      <div className="signature-font-caveat" style={{ fontSize: '24px', color: '#60a5fa', marginBottom: '2px' }}>
+                        {signerName || 'Signature'}
+                      </div>
+                    ) : (
+                      <div style={{ fontSize: '12px', color: '#60a5fa', fontWeight: 600, marginBottom: '2px' }}>
+                        [Drawn Signature Image]
+                      </div>
+                    )}
+                    <div style={{ fontSize: '13px', fontWeight: 600, color: '#f8fafc' }}>Signed by: {signerName || '(Your name)'}</div>
                     <div style={{ fontSize: '10.5px', color: '#94a3b8', marginTop: '2px' }}>Date: {new Date().toLocaleString()}</div>
                   </div>
                 </div>

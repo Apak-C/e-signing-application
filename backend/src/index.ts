@@ -194,41 +194,80 @@ export const app = new Elysia()
       const timestamp = new Date().toISOString();
       const displayDate = new Date().toLocaleString();
 
-      // Draw visible signature verification badge onto first page
-      firstPage.drawRectangle({
-        x: 45,
-        y: 40,
-        width: 320,
-        height: 65,
-        borderColor: rgb(0.12, 0.44, 0.98),
-        borderWidth: 1.5,
-        color: rgb(0.96, 0.98, 1.0),
-        opacity: 0.95,
-      });
+      const hasSignatureImage = !!(body.signatureImage && body.signatureImage.startsWith('data:image/'));
 
-      firstPage.drawText(`[VERIFIED] Digitally Signed with BlockSign`, {
-        x: 55,
-        y: 85,
-        size: 10,
-        font: helveticaBold,
-        color: rgb(0.12, 0.44, 0.98),
-      });
+      // Draw visible signature container box on the first page
+      if (hasSignatureImage) {
+        firstPage.drawRectangle({
+          x: 45,
+          y: 35,
+          width: 320,
+          height: 90,
+          borderColor: rgb(0.12, 0.44, 0.98),
+          borderWidth: 1.5,
+          color: rgb(0.96, 0.98, 1.0),
+          opacity: 0.95,
+        });
 
-      firstPage.drawText(`Signed by: ${body.signerName}`, {
-        x: 55,
-        y: 68,
-        size: 11,
-        font: helveticaBold,
-        color: rgb(0.1, 0.1, 0.1),
-      });
+        try {
+          const base64Data = body.signatureImage!.replace(/^data:image\/\w+;base64,/, '');
+          const imageBytes = Uint8Array.from(Buffer.from(base64Data, 'base64'));
+          const embeddedImage = await pdfDoc.embedPng(imageBytes);
 
-      firstPage.drawText(`Date: ${displayDate} • Ref: ${params.id.slice(0, 8)}`, {
-        x: 55,
-        y: 50,
-        size: 8.5,
-        font: helvetica,
-        color: rgb(0.4, 0.4, 0.4),
-      });
+          // Draw the user's actual drawn signature image
+          firstPage.drawImage(embeddedImage, {
+            x: 55,
+            y: 65,
+            width: 140,
+            height: 50,
+          });
+        } catch (imgErr) {
+          console.warn('Could not embed custom signature PNG:', imgErr);
+        }
+
+        firstPage.drawText(`Signed by: ${body.signerName}`, {
+          x: 55,
+          y: 50,
+          size: 10,
+          font: helveticaBold,
+          color: rgb(0.1, 0.1, 0.1),
+        });
+
+        firstPage.drawText(`Date: ${displayDate} • Ref: ${params.id.slice(0, 8)}`, {
+          x: 55,
+          y: 39,
+          size: 8,
+          font: helvetica,
+          color: rgb(0.4, 0.4, 0.4),
+        });
+      } else {
+        firstPage.drawRectangle({
+          x: 45,
+          y: 40,
+          width: 320,
+          height: 55,
+          borderColor: rgb(0.12, 0.44, 0.98),
+          borderWidth: 1.5,
+          color: rgb(0.96, 0.98, 1.0),
+          opacity: 0.95,
+        });
+
+        firstPage.drawText(`Signed by: ${body.signerName}`, {
+          x: 55,
+          y: 68,
+          size: 11,
+          font: helveticaBold,
+          color: rgb(0.1, 0.1, 0.1),
+        });
+
+        firstPage.drawText(`Date: ${displayDate} • Ref: ${params.id.slice(0, 8)}`, {
+          x: 55,
+          y: 50,
+          size: 8.5,
+          font: helvetica,
+          color: rgb(0.4, 0.4, 0.4),
+        });
+      }
 
       const pdfBytes = await pdfDoc.save();
       const signedPath = `./storage/signed-${params.id}.pdf`;
@@ -256,7 +295,8 @@ export const app = new Elysia()
     }
   }, {
     body: t.Object({
-      signerName: t.String()
+      signerName: t.String(),
+      signatureImage: t.Optional(t.String())
     })
   })
 
@@ -335,11 +375,10 @@ export const app = new Elysia()
 
       if (item.status === 'completed') {
         page.drawRectangle({
-          x: 45, y: 40, width: 320, height: 65,
+          x: 45, y: 40, width: 320, height: 55,
           borderColor: rgb(0.12, 0.44, 0.98), borderWidth: 1.5,
           color: rgb(0.96, 0.98, 1.0), opacity: 0.95
         });
-        page.drawText(`[VERIFIED] Digitally Signed with BlockSign`, { x: 55, y: 85, size: 10, color: rgb(0.12, 0.44, 0.98) });
         page.drawText(`Signed by: ${item.signer}`, { x: 55, y: 68, size: 11, color: rgb(0.1, 0.1, 0.1) });
         page.drawText(`Date: ${new Date(signedDate!).toLocaleString()} • Ref: ${id.slice(0, 8)}`, { x: 55, y: 50, size: 8.5, color: rgb(0.4, 0.4, 0.4) });
       }
