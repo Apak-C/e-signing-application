@@ -27,52 +27,95 @@ export const app = new Elysia()
   .use(cors())
   .get('/health', () => ({ status: 'ok', runtime: 'bun' }))
   
-  // 1. Upload & Request Signature (Email Dispatch simulation)
+  // 1. Multi-File Batch Upload & Request Signature
   .post('/api/upload', async ({ body, set }) => {
-    const file = body.file as File;
+    let rawFiles: File[] = [];
 
-    // Validate that the file is a PDF
-    if (!file.name.toLowerCase().endsWith('.pdf')) {
+    if (body.files) {
+      if (Array.isArray(body.files)) {
+        rawFiles = body.files;
+      } else if (body.files instanceof File || (body.files && (body.files as any).name)) {
+        rawFiles = [body.files as File];
+      } else if (typeof body.files === 'object') {
+        rawFiles = Object.values(body.files).filter((f: any) => f && f.name) as File[];
+      }
+    }
+
+    if (body.file) {
+      if (Array.isArray(body.file)) {
+        rawFiles.push(...body.file);
+      } else if (body.file instanceof File || (body.file && (body.file as any).name)) {
+        rawFiles.push(body.file as File);
+      }
+    }
+
+    if (rawFiles.length === 0) {
       set.status = 400;
       return {
         success: false,
-        error: 'Unsupported file format: Only PDF documents (.pdf) can be signed. Please convert your file to PDF and try again.'
+        error: 'No files provided. Please select at least one PDF file.'
       };
     }
 
-    const id = crypto.randomUUID();
-    const originalPath = `./storage/${id}-${file.name}`;
     const now = new Date().toISOString();
-    const signUrl = `http://localhost:5173/sign/${id}`;
-    
-    await Bun.write(originalPath, file);
-    
-    db.run(
-      'INSERT INTO documents (id, title, original_path, status, signer_email, created_at) VALUES (?, ?, ?, ?, ?, ?)',
-      [id, file.name, originalPath, 'pending', body.signerEmail, now]
-    );
+    const uploadedDocs: Array<{ id: string; fileName: string; signUrl: string }> = [];
 
-    // Mock outgoing email notification dispatch
+    for (const file of rawFiles) {
+      // Validate that the file is a PDF
+      if (!file.name.toLowerCase().endsWith('.pdf')) {
+        set.status = 400;
+        return {
+          success: false,
+          error: `Unsupported file format in "${file.name}". Only PDF documents (.pdf) are supported.`
+        };
+      }
+
+      const id = crypto.randomUUID();
+      const originalPath = `./storage/${id}-${file.name}`;
+      const signUrl = `http://localhost:5173/sign/${id}`;
+
+      await Bun.write(originalPath, file);
+
+      db.run(
+        'INSERT INTO documents (id, title, original_path, status, signer_email, created_at) VALUES (?, ?, ?, ?, ?, ?)',
+        [id, file.name, originalPath, 'pending', body.signerEmail, now]
+      );
+
+      uploadedDocs.push({
+        id,
+        fileName: file.name,
+        signUrl
+      });
+    }
+
+    // Mock outgoing email notification dispatch preview
     const emailPreview = {
       to: body.signerEmail,
       from: 'BlockSign Dispatch <notifications@blocksign.io>',
-      subject: `Action Required: Please sign "${file.name}"`,
-      body: `You have received a document for signature via BlockSign. Please click the secure signing link below to review, sign, and return the completed document to the requester.`,
-      link: signUrl,
+      subject: uploadedDocs.length === 1 
+        ? `Action Required: Please sign "${uploadedDocs[0].fileName}"`
+        : `Action Required: ${uploadedDocs.length} documents awaiting your signature`,
+      body: `You have received ${uploadedDocs.length} document(s) for digital signature via BlockSign. Review and execute each document securely via the attached signing link(s).`,
+      link: uploadedDocs[0].signUrl,
+      documents: uploadedDocs,
       dispatchedAt: now
     };
 
     return { 
       success: true, 
-      documentId: id, 
-      fileName: file.name,
-      signUrl,
+      count: uploadedDocs.length,
+      documents: uploadedDocs,
+      // Backward compatibility fields for single upload handlers
+      documentId: uploadedDocs[0].id, 
+      fileName: uploadedDocs[0].fileName,
+      signUrl: uploadedDocs[0].signUrl,
       emailPreview
     };
   }, {
     body: t.Object({
-      file: t.File(),
-      signerEmail: t.String()
+      signerEmail: t.String(),
+      files: t.Optional(t.Any()),
+      file: t.Optional(t.Any())
     })
   })
 
@@ -89,10 +132,35 @@ export const app = new Elysia()
       set.status = 404;
       return { error: 'Document not found' };
     }
-    return { success: true, document: doc };
+    return { 
+      success: true, 
+      document: doc,
+      fileUrl: `http://localhost:3000/api/document/${params.id}/file` 
+    };
   })
 
-  // 4. Sign Document Endpoint
+  // 4. Stream Raw / Inline PDF File for embedded browser viewing
+  .get('/api/document/:id/file', async ({ params, set }) => {
+    const doc = db.query('SELECT * FROM documents WHERE id = ?').get(params.id) as any;
+    if (!doc) {
+      set.status = 404;
+      return { error: 'Document not found' };
+    }
+
+    const targetPath = doc.signed_path && doc.status === 'completed' ? doc.signed_path : doc.original_path;
+    const file = Bun.file(targetPath);
+    const exists = await file.exists();
+    if (!exists) {
+      set.status = 404;
+      return { error: 'File on disk not found' };
+    }
+
+    set.headers['Content-Type'] = 'application/pdf';
+    set.headers['Content-Disposition'] = `inline; filename="${doc.title || 'document.pdf'}"`;
+    return file;
+  })
+
+  // 5. Sign Document Endpoint
   .post('/api/sign/:id', async ({ params, body, set }) => {
     const doc = db.query('SELECT * FROM documents WHERE id = ?').get(params.id) as any;
     if (!doc) {
@@ -175,6 +243,7 @@ export const app = new Elysia()
         success: true, 
         message: 'Document successfully signed and returned to sender', 
         downloadUrl: `http://localhost:3000/api/download/${params.id}`,
+        fileUrl: `http://localhost:3000/api/document/${params.id}/file`,
         signedAt: timestamp
       };
     } catch (err: any) {
@@ -191,7 +260,7 @@ export const app = new Elysia()
     })
   })
 
-  // 5. Download Signed Document Endpoint
+  // 6. Download Signed Document Endpoint
   .get('/api/download/:id', async ({ params, set }) => {
     const doc = db.query('SELECT * FROM documents WHERE id = ?').get(params.id) as any;
     if (!doc || !doc.signed_path) {
@@ -211,7 +280,7 @@ export const app = new Elysia()
     return file;
   })
 
-  // 6. Delete/Close Document Endpoint
+  // 7. Delete/Close Document Endpoint
   .delete('/api/document/:id', async ({ params, set }) => {
     const doc = db.query('SELECT * FROM documents WHERE id = ?').get(params.id) as any;
     if (!doc) {
@@ -223,7 +292,7 @@ export const app = new Elysia()
     return { success: true, message: 'Document removed successfully' };
   })
 
-  // 7. Seed 20 Sample Documents for showcase
+  // 8. Seed 20 Sample Documents for showcase
   .post('/api/seed', async () => {
     const sampleList = [
       { title: 'Non-Disclosure Agreement (NDA).pdf', email: 'sarah.jenkins@techcorp.io', status: 'completed', signer: 'Sarah Jenkins' },
