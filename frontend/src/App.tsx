@@ -21,7 +21,8 @@ import {
   Eye,
   Layers,
   ArrowLeft,
-  ChevronRight
+  ChevronRight,
+  Check
 } from 'lucide-react';
 
 const API_BASE = 'http://localhost:3000';
@@ -92,7 +93,7 @@ export default function App() {
 }
 
 /* =========================================================================
-   1. INTERACTIVE SIGNER PORTAL (Embedded PDF Viewer + Interactive Toolbar)
+   1. INTERACTIVE SIGNER PORTAL (Minimalist & Professional PDF Studio)
    ========================================================================= */
 function InteractiveSignerPortal({ documentId, onReturnHome }: { documentId: string; onReturnHome: () => void }) {
   const [doc, setDoc] = useState<DocumentItem | null>(null);
@@ -140,7 +141,7 @@ function InteractiveSignerPortal({ documentId, onReturnHome }: { documentId: str
       const canvas = canvasRef.current;
       const ctx = canvas.getContext('2d');
       if (ctx) {
-        ctx.strokeStyle = '#2563eb';
+        ctx.strokeStyle = '#3b82f6';
         ctx.lineWidth = 2.5;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
@@ -214,8 +215,8 @@ function InteractiveSignerPortal({ documentId, onReturnHome }: { documentId: str
       const data = await res.json().catch(() => null);
       if (res.ok && data?.success) {
         confetti({
-          particleCount: 90,
-          spread: 80,
+          particleCount: 80,
+          spread: 70,
           origin: { y: 0.6 }
         });
         setIsCompleted(true);
@@ -232,10 +233,10 @@ function InteractiveSignerPortal({ documentId, onReturnHome }: { documentId: str
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', backgroundColor: '#0b0f19', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
+      <div style={{ minHeight: '100vh', backgroundColor: '#090c14', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
         <div style={{ textAlign: 'center' }}>
-          <RefreshCw size={36} className="animate-spin" style={{ margin: '0 auto 16px', color: '#3b82f6' }} />
-          <h2 style={{ fontSize: '18px', color: '#f8fafc' }}>Loading Document Workspace...</h2>
+          <RefreshCw size={32} className="animate-spin" style={{ margin: '0 auto 16px', color: '#3b82f6' }} />
+          <h2 style={{ fontSize: '15px', fontWeight: 500, color: '#f8fafc', letterSpacing: '-0.2px' }}>Loading Document Workspace...</h2>
         </div>
       </div>
     );
@@ -243,12 +244,12 @@ function InteractiveSignerPortal({ documentId, onReturnHome }: { documentId: str
 
   if (error || !doc) {
     return (
-      <div style={{ minHeight: '100vh', backgroundColor: '#0b0f19', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-        <div style={{ maxWidth: '480px', width: '100%', backgroundColor: '#111827', borderRadius: '16px', border: '1px solid #1f293d', padding: '36px', textAlign: 'center' }}>
-          <AlertCircle size={48} color="#ef4444" style={{ margin: '0 auto 16px' }} />
-          <h2 style={{ fontSize: '20px', color: '#f8fafc', marginBottom: '8px' }}>Unable to Open Document</h2>
-          <p style={{ color: '#94a3b8', fontSize: '14px', marginBottom: '24px' }}>{error || 'Document not found.'}</p>
-          <button onClick={onReturnHome} style={{ padding: '10px 20px', backgroundColor: '#1e293b', color: '#f8fafc', border: '1px solid #334155', borderRadius: '8px' }}>
+      <div style={{ minHeight: '100vh', backgroundColor: '#090c14', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+        <div style={{ maxWidth: '440px', width: '100%', backgroundColor: '#101420', borderRadius: '12px', border: '1px solid #1e2638', padding: '32px', textAlign: 'center' }}>
+          <AlertCircle size={40} color="#ef4444" style={{ margin: '0 auto 16px' }} />
+          <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#f8fafc', marginBottom: '8px' }}>Unable to Open Document</h2>
+          <p style={{ color: '#94a3b8', fontSize: '13px', marginBottom: '24px', lineHeight: 1.5 }}>{error || 'Document not found.'}</p>
+          <button onClick={onReturnHome} style={{ padding: '8px 16px', backgroundColor: '#171d2e', color: '#f8fafc', border: '1px solid #2a354c', borderRadius: '6px', fontSize: '13px' }}>
             Return to Dashboard
           </button>
         </div>
@@ -259,120 +260,119 @@ function InteractiveSignerPortal({ documentId, onReturnHome }: { documentId: str
   const pdfUrl = `${API_BASE}/api/document/${documentId}/file?t=${pdfTimestamp}`;
 
   return (
-    <div style={{ height: '100vh', backgroundColor: '#0b0f19', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+    <div style={{ height: '100vh', backgroundColor: '#090c14', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       
-      {/* Top Bar */}
-      <header style={{ height: '56px', backgroundColor: '#111827', borderBottom: '1px solid #1f293d', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', flexShrink: 0 }}>
+      {/* Refined Top Navigation Bar */}
+      <header style={{ height: '52px', backgroundColor: '#101420', borderBottom: '1px solid #1e2638', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <button onClick={onReturnHome} style={{ background: 'none', border: 'none', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', cursor: 'pointer' }}>
-            <ArrowLeft size={16} /> Dashboard
+          <button onClick={onReturnHome} style={{ background: 'none', border: 'none', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', cursor: 'pointer', padding: '4px 8px', borderRadius: '4px' }}>
+            <ArrowLeft size={15} /> Dashboard
           </button>
-          <div style={{ height: '16px', width: '1px', backgroundColor: '#334155' }} />
+          <div style={{ height: '14px', width: '1px', backgroundColor: '#1e2638' }} />
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <FileText size={18} color="#3b82f6" />
-            <span style={{ fontSize: '14px', fontWeight: 600, color: '#f8fafc' }}>{doc.title}</span>
+            <FileText size={16} color="#3b82f6" />
+            <span style={{ fontSize: '13px', fontWeight: 600, color: '#f8fafc', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{doc.title}</span>
           </div>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#94a3b8' }}>
-            <Lock size={13} color="#10b981" />
-            <span>256-Bit Encrypted Session</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#64748b' }}>
+            <Lock size={12} color="#10b981" />
+            <span>256-Bit Encrypted</span>
           </div>
           <span style={{
-            fontSize: '12px',
+            fontSize: '11px',
             padding: '3px 10px',
-            borderRadius: '12px',
+            borderRadius: '20px',
             fontWeight: 600,
-            backgroundColor: isCompleted ? 'rgba(16,185,129,0.15)' : 'rgba(59,130,246,0.15)',
+            backgroundColor: isCompleted ? 'rgba(16,185,129,0.1)' : 'rgba(59,130,246,0.1)',
             color: isCompleted ? '#34d399' : '#60a5fa',
-            border: isCompleted ? '1px solid rgba(16,185,129,0.3)' : '1px solid rgba(59,130,246,0.3)'
+            border: isCompleted ? '1px solid rgba(16,185,129,0.25)' : '1px solid rgba(59,130,246,0.25)'
           }}>
-            {isCompleted ? '✓ Completed & Sealed' : 'Action Required'}
+            {isCompleted ? '✓ Completed' : 'Action Required'}
           </span>
         </div>
       </header>
 
-      {/* Main Workspace (Split-screen PDF Viewer + Floating Signing Studio) */}
+      {/* Main Workspace (Split View) */}
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
         
-        {/* LEFT: EMBEDDED REAL PDF VIEWER */}
-        <div style={{ flex: '1 1 60%', height: '100%', backgroundColor: '#0e131f', position: 'relative', borderRight: '1px solid #1f293d' }}>
-          <div style={{ position: 'absolute', top: '12px', left: '16px', zIndex: 10, display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', borderRadius: '8px', backgroundColor: 'rgba(17,24,39,0.9)', backdropFilter: 'blur(8px)', border: '1px solid #1f293d', fontSize: '12px', color: '#cbd5e1' }}>
-            <Eye size={14} color="#3b82f6" /> Live PDF Preview
+        {/* LEFT: EMBEDDED PDF VIEWER */}
+        <div style={{ flex: '1 1 65%', height: '100%', backgroundColor: '#070a0f', position: 'relative', borderRight: '1px solid #1e2638' }}>
+          <div style={{ position: 'absolute', top: '12px', left: '16px', zIndex: 10, display: 'flex', alignItems: 'center', gap: '6px', padding: '5px 10px', borderRadius: '6px', backgroundColor: 'rgba(16,20,32,0.85)', backdropFilter: 'blur(8px)', border: '1px solid #1e2638', fontSize: '11px', color: '#94a3b8' }}>
+            <Eye size={13} color="#3b82f6" /> Document Viewer
           </div>
 
           <iframe
             src={pdfUrl}
             title={doc.title}
-            style={{ width: '100%', height: '100%', border: 'none', backgroundColor: '#1e293b' }}
+            style={{ width: '100%', height: '100%', border: 'none', backgroundColor: '#101420' }}
           />
         </div>
 
-        {/* RIGHT: INTERACTIVE SIGNING TOOLBAR / CONTROLS */}
-        <div style={{ flex: '0 0 420px', width: '420px', height: '100%', backgroundColor: '#111827', display: 'flex', flexDirection: 'column', overflowY: 'auto' }} className="custom-scrollbar">
+        {/* RIGHT: REFINED SIGNING STUDIO */}
+        <div style={{ flex: '0 0 380px', width: '380px', height: '100%', backgroundColor: '#101420', display: 'flex', flexDirection: 'column', overflowY: 'auto' }} className="custom-scrollbar">
           
           {!isCompleted ? (
-            <div style={{ padding: '28px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
               
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#3b82f6', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>
-                  <PenTool size={15} /> Apply Digital Signature
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#3b82f6', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '4px' }}>
+                  <PenTool size={13} /> Digital Signature
                 </div>
-                <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#f8fafc', margin: 0 }}>
-                  Review & Sign Document
+                <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#f8fafc', margin: 0, letterSpacing: '-0.2px' }}>
+                  Execute Document
                 </h2>
-                <p style={{ fontSize: '13px', color: '#94a3b8', marginTop: '4px' }}>
-                  Review the PDF on the left, then apply your signature below to execute.
+                <p style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
+                  Review terms on the left, then apply your signature below.
                 </p>
               </div>
 
-              <form onSubmit={handleSubmitSignature} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+              <form onSubmit={handleSubmitSignature} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 
                 {/* Signer Legal Name */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#cbd5e1', marginBottom: '6px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: '#cbd5e1', marginBottom: '6px' }}>
                     Full Legal Name
                   </label>
                   <input
                     type="text"
                     value={signerName}
                     onChange={e => setSignerName(e.target.value)}
-                    placeholder="Enter your legal name"
+                    placeholder="e.g. Alexander Vance"
                     required
                     style={{
                       width: '100%',
-                      padding: '10px 14px',
-                      borderRadius: '8px',
-                      backgroundColor: '#1e293b',
-                      border: '1px solid #334155',
+                      padding: '8px 12px',
+                      borderRadius: '6px',
+                      backgroundColor: '#171d2e',
+                      border: '1px solid #1e2638',
                       color: '#f8fafc',
-                      fontSize: '14px',
-                      outline: 'none'
+                      fontSize: '13px'
                     }}
                   />
                 </div>
 
-                {/* Drawn Signature Pad */}
+                {/* Drawn Signature Canvas */}
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                    <label style={{ fontSize: '13px', fontWeight: 500, color: '#cbd5e1' }}>
+                    <label style={{ fontSize: '12px', fontWeight: 500, color: '#cbd5e1' }}>
                       Draw Signature
                     </label>
                     <button
                       type="button"
                       onClick={clearCanvas}
-                      style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '3px 8px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '4px', color: '#94a3b8', fontSize: '11px', cursor: 'pointer' }}
+                      style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '3px 8px', backgroundColor: '#171d2e', border: '1px solid #1e2638', borderRadius: '4px', color: '#94a3b8', fontSize: '11px', cursor: 'pointer' }}
                     >
-                      <Eraser size={12} /> Clear
+                      <Eraser size={11} /> Clear
                     </button>
                   </div>
                   
-                  <div style={{ position: 'relative', border: '1px solid #334155', borderRadius: '8px', backgroundColor: '#1e293b', overflow: 'hidden' }}>
+                  <div style={{ position: 'relative', border: '1px solid #1e2638', borderRadius: '6px', backgroundColor: '#171d2e', overflow: 'hidden' }}>
                     <canvas
                       ref={canvasRef}
-                      width={360}
-                      height={120}
+                      width={332}
+                      height={110}
                       onMouseDown={startDrawing}
                       onMouseMove={draw}
                       onMouseUp={stopDrawing}
@@ -380,87 +380,86 @@ function InteractiveSignerPortal({ documentId, onReturnHome }: { documentId: str
                       onTouchStart={startDrawing}
                       onTouchMove={draw}
                       onTouchEnd={stopDrawing}
-                      style={{ width: '100%', height: '120px', display: 'block', cursor: 'crosshair', touchAction: 'none' }}
+                      style={{ width: '100%', height: '110px', display: 'block', cursor: 'crosshair', touchAction: 'none' }}
                     />
                     {!hasDrawn && (
-                      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', pointerEvents: 'none', color: '#64748b', fontSize: '12px' }}>
-                        Draw your signature here
+                      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', pointerEvents: 'none', color: '#64748b', fontSize: '11px' }}>
+                        Draw signature here
                       </div>
                     )}
                   </div>
                 </div>
 
                 {/* Stamping Preview Box */}
-                <div style={{ padding: '14px', borderRadius: '8px', backgroundColor: '#0f172a', border: '1px dashed #3b82f6' }}>
-                  <div style={{ fontSize: '11px', color: '#93c5fd', fontWeight: 600, marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <Sparkles size={13} /> Document Signature Overlay Preview:
+                <div style={{ padding: '12px', borderRadius: '6px', backgroundColor: '#0c101a', border: '1px solid #1e2638' }}>
+                  <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 500, marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Sparkles size={12} color="#3b82f6" /> Document Overlay Preview:
                   </div>
-                  <div style={{ padding: '10px 12px', backgroundColor: '#1e293b', borderRadius: '6px', borderLeft: '3px solid #3b82f6' }}>
-                    <div style={{ fontSize: '12px', color: '#60a5fa', fontWeight: 600, marginBottom: '2px' }}>
-                      {hasDrawn ? '✓ Drawn Signature Captured' : '[Drawn Signature Image]'}
+                  <div style={{ padding: '8px 10px', backgroundColor: '#101420', borderRadius: '4px', borderLeft: '2px solid #3b82f6' }}>
+                    <div style={{ fontSize: '11px', color: '#60a5fa', fontWeight: 600, marginBottom: '2px' }}>
+                      {hasDrawn ? '✓ Drawn Signature Attached' : '[Signature Stroke]'}
                     </div>
-                    <div style={{ fontSize: '13px', fontWeight: 600, color: '#f8fafc' }}>Signed by: {signerName || '(Your name)'}</div>
-                    <div style={{ fontSize: '10.5px', color: '#94a3b8', marginTop: '2px' }}>Date: {new Date().toLocaleString()}</div>
+                    <div style={{ fontSize: '12px', fontWeight: 600, color: '#f8fafc' }}>Signed by: {signerName || '(Your Name)'}</div>
+                    <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px' }}>Date: {new Date().toLocaleDateString()}</div>
                   </div>
                 </div>
 
                 {/* Error Banner */}
                 {submitError && (
-                  <div style={{ padding: '10px 14px', borderRadius: '8px', backgroundColor: 'rgba(239,68,68,0.15)', border: '1px solid #ef4444', color: '#fca5a5', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <AlertCircle size={15} color="#ef4444" style={{ flexShrink: 0 }} />
+                  <div style={{ padding: '8px 12px', borderRadius: '6px', backgroundColor: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', color: '#fca5a5', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <AlertCircle size={14} color="#ef4444" style={{ flexShrink: 0 }} />
                     <span>{submitError}</span>
                   </div>
                 )}
 
-                {/* Primary Submit Button */}
+                {/* Primary Action */}
                 <button
                   type="submit"
                   disabled={isSubmitting || !signerName.trim()}
                   style={{
-                    padding: '14px 20px',
-                    borderRadius: '8px',
-                    backgroundColor: isSubmitting || !signerName.trim() ? '#334155' : '#2563eb',
+                    padding: '11px 16px',
+                    borderRadius: '6px',
+                    backgroundColor: isSubmitting || !signerName.trim() ? '#1e2638' : '#2563eb',
                     color: '#ffffff',
-                    fontSize: '15px',
+                    fontSize: '13px',
                     fontWeight: 600,
                     border: 'none',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '8px',
-                    boxShadow: '0 4px 14px rgba(37,99,235,0.4)',
+                    gap: '6px',
                     cursor: isSubmitting || !signerName.trim() ? 'not-allowed' : 'pointer'
                   }}
                 >
-                  <Send size={16} />
-                  {isSubmitting ? 'Sealing Document...' : 'Sign & Return to Sender'}
+                  <Send size={14} />
+                  {isSubmitting ? 'Sealing Document...' : 'Sign & Submit Document'}
                 </button>
               </form>
             </div>
           ) : (
             /* Completed Screen */
-            <div style={{ padding: '36px 28px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-              <div style={{ width: '56px', height: '56px', borderRadius: '50%', backgroundColor: 'rgba(16,185,129,0.15)', border: '2px solid #10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981', marginBottom: '16px' }}>
-                <CheckCircle2 size={32} />
+            <div style={{ padding: '32px 24px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981', marginBottom: '14px' }}>
+                <Check size={24} />
               </div>
 
-              <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#f8fafc', marginBottom: '8px' }}>
-                Document Executed!
+              <h2 style={{ fontSize: '17px', fontWeight: 600, color: '#f8fafc', marginBottom: '6px' }}>
+                Document Executed
               </h2>
-              <p style={{ fontSize: '13px', color: '#94a3b8', lineHeight: 1.5, marginBottom: '24px' }}>
-                Your signature has been stamped onto <strong style={{ color: '#f8fafc' }}>{doc.title}</strong> and delivered back to the requester.
+              <p style={{ fontSize: '12px', color: '#94a3b8', lineHeight: 1.5, marginBottom: '20px' }}>
+                Your signature has been embedded into <strong style={{ color: '#f8fafc' }}>{doc.title}</strong> and saved to the registry.
               </p>
 
-              <div style={{ width: '100%', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', padding: '14px', textAlign: 'left', marginBottom: '24px', fontSize: '12px' }}>
-                <div style={{ color: '#34d399', fontWeight: 600, marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <ShieldCheck size={14} /> Execution Certificate
+              <div style={{ width: '100%', backgroundColor: '#171d2e', border: '1px solid #1e2638', borderRadius: '6px', padding: '12px', textAlign: 'left', marginBottom: '20px', fontSize: '11px' }}>
+                <div style={{ color: '#34d399', fontWeight: 600, marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <ShieldCheck size={13} /> Verified Audit Entry
                 </div>
                 <div style={{ color: '#cbd5e1' }}>• Signer: {signerName || doc.signer_email}</div>
-                <div style={{ color: '#cbd5e1' }}>• Sealed At: {new Date().toLocaleString()}</div>
+                <div style={{ color: '#cbd5e1' }}>• Timestamp: {new Date().toLocaleString()}</div>
                 <div style={{ color: '#cbd5e1' }}>• Status: Sealed & Archived</div>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
                 <a
                   href={`${API_BASE}/api/download/${documentId}`}
                   download={`signed-${doc.title}`}
@@ -468,27 +467,27 @@ function InteractiveSignerPortal({ documentId, onReturnHome }: { documentId: str
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '8px',
-                    padding: '12px 18px',
+                    gap: '6px',
+                    padding: '10px 14px',
                     backgroundColor: '#10b981',
                     color: '#ffffff',
-                    borderRadius: '8px',
+                    borderRadius: '6px',
                     textDecoration: 'none',
-                    fontSize: '14px',
+                    fontSize: '13px',
                     fontWeight: 600
                   }}
                 >
-                  <Download size={16} /> Download Signed PDF
+                  <Download size={14} /> Download Signed PDF
                 </a>
                 <button
                   onClick={onReturnHome}
                   style={{
-                    padding: '10px 18px',
-                    backgroundColor: '#1e293b',
+                    padding: '9px 14px',
+                    backgroundColor: '#171d2e',
                     color: '#94a3b8',
-                    border: '1px solid #334155',
-                    borderRadius: '8px',
-                    fontSize: '13px'
+                    border: '1px solid #1e2638',
+                    borderRadius: '6px',
+                    fontSize: '12px'
                   }}
                 >
                   Return to Dashboard
@@ -504,7 +503,7 @@ function InteractiveSignerPortal({ documentId, onReturnHome }: { documentId: str
 }
 
 /* =========================================================================
-   2. REQUESTER DASHBOARD (Multi-File Batch Upload & Document Tracker)
+   2. REQUESTER DASHBOARD (Unified Minimalist Workflow Card)
    ========================================================================= */
 function RequesterDashboard({ onNavigateToSign }: { onNavigateToSign: (docId: string) => void }) {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -630,238 +629,212 @@ function RequesterDashboard({ onNavigateToSign }: { onNavigateToSign: (docId: st
   };
 
   return (
-    <div style={{ maxWidth: '1040px', margin: '0 auto', padding: '36px 20px 60px' }}>
+    <div style={{ maxWidth: '980px', margin: '0 auto', padding: '40px 20px 80px' }}>
       
-      {/* Header */}
-      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: '0 4px 14px rgba(37,99,235,0.4)' }}>
-            <ShieldCheck size={26} />
+      {/* Minimal Header */}
+      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ width: '36px', height: '36px', borderRadius: '8px', backgroundColor: '#171d2e', border: '1px solid #1e2638', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3b82f6' }}>
+            <ShieldCheck size={20} />
           </div>
           <div>
-            <h1 style={{ fontSize: '26px', fontWeight: 700, margin: 0, color: '#f8fafc' }}>
+            <h1 style={{ fontSize: '20px', fontWeight: 700, margin: 0, color: '#f8fafc', letterSpacing: '-0.3px' }}>
               BlockSign
             </h1>
-            <p style={{ fontSize: '13px', color: '#94a3b8', margin: 0 }}>
-              Batch E-Signature & Document Execution Platform
+            <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>
+              Digital Signature & Execution Engine
             </p>
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 14px', borderRadius: '20px', backgroundColor: '#1e293b', border: '1px solid #334155', fontSize: '13px' }}>
-          <Server size={14} color="#10b981" />
-          <span style={{ color: '#cbd5e1' }}>Elysia Engine Online</span>
-          <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981' }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 10px', borderRadius: '16px', backgroundColor: '#101420', border: '1px solid #1e2638', fontSize: '12px', color: '#94a3b8' }}>
+          <Server size={13} color="#10b981" />
+          <span>Elysia Engine Online</span>
         </div>
       </header>
 
-      {/* Main Upload Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: recentDispatch ? '1fr 1fr' : '1fr', gap: '24px', marginBottom: '36px' }}>
+      {/* UNIFIED WORKFLOW CONTAINER */}
+      <div style={{ backgroundColor: '#101420', borderRadius: '12px', border: '1px solid #1e2638', padding: '24px', marginBottom: '28px' }}>
         
-        {/* Upload & Dispatch Card */}
-        <div style={{ backgroundColor: '#111827', borderRadius: '16px', border: '1px solid #1f293d', padding: '28px' }}>
-          <div style={{ marginBottom: '20px' }}>
-            <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#f8fafc', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <FileUp size={20} color="#3b82f6" /> Batch Upload & Request Signatures
-            </h2>
-            <p style={{ fontSize: '13px', color: '#94a3b8' }}>
-              Select one or multiple PDF documents to generate individual signing links.
-            </p>
-          </div>
+        <div style={{ marginBottom: '18px' }}>
+          <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#f8fafc', margin: 0, display: 'flex', alignItems: 'center', gap: '8px', letterSpacing: '-0.2px' }}>
+            <FileUp size={18} color="#3b82f6" /> Upload & Dispatch Documents
+          </h2>
+          <p style={{ fontSize: '12px', color: '#64748b', marginTop: '3px' }}>
+            Attach PDF contracts and specify the signer to generate secure execution links.
+          </p>
+        </div>
 
-          <form onSubmit={handleUploadAndDispatch} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {/* MULTI-FILE INPUT DROPZONE */}
-            <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#cbd5e1', marginBottom: '6px' }}>
-                PDF Contracts (Multi-File Selection Supported)
-              </label>
-              <div style={{ border: '2px dashed #334155', borderRadius: '10px', padding: '22px', textAlign: 'center', backgroundColor: '#1e293b', position: 'relative' }}>
-                <input 
-                  type="file" 
-                  accept="application/pdf"
-                  multiple
-                  onChange={handleFilesSelected}
-                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }}
-                />
-                <Layers size={28} color="#3b82f6" style={{ margin: '0 auto 8px' }} />
-                <p style={{ fontSize: '13px', fontWeight: 500, color: '#e2e8f0' }}>
-                  Click to browse multiple PDFs or drag & drop
-                </p>
-                <p style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
-                  Supports multiple files simultaneously
-                </p>
-              </div>
-
-              {/* Selected Files Badge List */}
-              {selectedFiles.length > 0 && (
-                <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <div style={{ fontSize: '12px', color: '#93c5fd', fontWeight: 600 }}>
-                    {selectedFiles.length} file(s) queued for upload:
-                  </div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', maxHeight: '120px', overflowY: 'auto' }} className="custom-scrollbar">
-                    {selectedFiles.map((f, index) => (
-                      <div 
-                        key={index} 
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                          padding: '4px 10px',
-                          backgroundColor: '#0f172a',
-                          border: '1px solid #334155',
-                          borderRadius: '6px',
-                          fontSize: '12px',
-                          color: '#f8fafc'
-                        }}
-                      >
-                        <FileText size={12} color="#3b82f6" />
-                        <span style={{ maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.name}</span>
-                        <span style={{ color: '#64748b', fontSize: '10px' }}>({(f.size / 1024).toFixed(0)}KB)</span>
-                        <button
-                          type="button"
-                          onClick={() => removeSelectedFile(index)}
-                          style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0 }}
-                        >
-                          <X size={12} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#cbd5e1', marginBottom: '6px' }}>
-                Signer Recipient Email
-              </label>
+        <form onSubmit={handleUploadAndDispatch} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          
+          {/* Dropzone */}
+          <div>
+            <div style={{ border: '1px dashed #2a354c', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#0c101a', position: 'relative', transition: 'border-color 0.2s ease' }}>
               <input 
-                type="email"
-                value={signerEmail}
-                onChange={e => setSignerEmail(e.target.value)}
-                placeholder="signer@company.com"
-                required
-                style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', backgroundColor: '#1e293b', border: '1px solid #334155', color: '#f8fafc', fontSize: '14px', outline: 'none' }}
+                type="file" 
+                accept="application/pdf"
+                multiple
+                onChange={handleFilesSelected}
+                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }}
               />
+              <Layers size={24} color="#3b82f6" style={{ margin: '0 auto 6px' }} />
+              <p style={{ fontSize: '13px', fontWeight: 500, color: '#e2e8f0', margin: 0 }}>
+                Choose PDF documents or drag and drop
+              </p>
+              <p style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
+                Batch upload supported (PDF format only)
+              </p>
             </div>
 
-            {uploadError && (
-              <div style={{ padding: '10px 14px', borderRadius: '8px', backgroundColor: 'rgba(239,68,68,0.15)', border: '1px solid #ef4444', color: '#fca5a5', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <AlertCircle size={16} color="#ef4444" style={{ flexShrink: 0 }} />
-                <span>{uploadError}</span>
+            {/* Selected Files Badge List */}
+            {selectedFiles.length > 0 && (
+              <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <div style={{ fontSize: '11px', color: '#93c5fd', fontWeight: 600 }}>
+                  {selectedFiles.length} document(s) selected:
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', maxHeight: '100px', overflowY: 'auto' }} className="custom-scrollbar">
+                  {selectedFiles.map((f, index) => (
+                    <div 
+                      key={index} 
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        padding: '4px 8px',
+                        backgroundColor: '#171d2e',
+                        border: '1px solid #1e2638',
+                        borderRadius: '4px',
+                        fontSize: '11px',
+                        color: '#f8fafc'
+                      }}
+                    >
+                      <FileText size={11} color="#3b82f6" />
+                      <span style={{ maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.name}</span>
+                      <span style={{ color: '#64748b', fontSize: '10px' }}>({(f.size / 1024).toFixed(0)}KB)</span>
+                      <button
+                        type="button"
+                        onClick={() => removeSelectedFile(index)}
+                        style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0 }}
+                      >
+                        <X size={11} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
+          </div>
 
+          {/* Signer Email Input */}
+          <div>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: '#cbd5e1', marginBottom: '6px' }}>
+              Target Signer Email Address
+            </label>
+            <input 
+              type="email"
+              value={signerEmail}
+              onChange={e => setSignerEmail(e.target.value)}
+              placeholder="recipient@enterprise.com"
+              required
+              style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', backgroundColor: '#171d2e', border: '1px solid #1e2638', color: '#f8fafc', fontSize: '13px' }}
+            />
+          </div>
+
+          {uploadError && (
+            <div style={{ padding: '8px 12px', borderRadius: '6px', backgroundColor: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', color: '#fca5a5', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <AlertCircle size={14} color="#ef4444" style={{ flexShrink: 0 }} />
+              <span>{uploadError}</span>
+            </div>
+          )}
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
             <button
               type="submit"
               disabled={isUploading || selectedFiles.length === 0 || !signerEmail.trim()}
               style={{
-                marginTop: '6px',
-                padding: '12px 20px',
-                borderRadius: '8px',
-                backgroundColor: isUploading || selectedFiles.length === 0 || !signerEmail.trim() ? '#334155' : '#2563eb',
+                padding: '9px 18px',
+                borderRadius: '6px',
+                backgroundColor: isUploading || selectedFiles.length === 0 || !signerEmail.trim() ? '#1e2638' : '#2563eb',
                 color: '#fff',
                 fontWeight: 600,
-                fontSize: '14px',
+                fontSize: '13px',
                 border: 'none',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                boxShadow: selectedFiles.length > 0 ? '0 4px 14px rgba(37,99,235,0.35)' : 'none',
+                gap: '6px',
                 cursor: isUploading || selectedFiles.length === 0 || !signerEmail.trim() ? 'not-allowed' : 'pointer'
               }}
             >
-              <Send size={16} />
-              {isUploading ? 'Dispatching Batch...' : `Dispatch ${selectedFiles.length > 1 ? `${selectedFiles.length} Documents` : 'for Signature'}`}
+              <Send size={13} />
+              {isUploading ? 'Dispatching...' : `Dispatch ${selectedFiles.length > 1 ? `(${selectedFiles.length}) Documents` : 'for Signature'}`}
             </button>
-          </form>
-        </div>
+          </div>
+        </form>
 
-        {/* Multi-Document Dispatched Card Preview */}
+        {/* Minimal Dispatched Notification Banner */}
         {recentDispatch && (
-          <div style={{ backgroundColor: '#111827', borderRadius: '16px', border: '1px solid #3b82f6', padding: '24px', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#34d399', fontSize: '13px', fontWeight: 600 }}>
-                <Mail size={18} /> Outgoing Email Dispatched ({recentDispatch.count} Document{recentDispatch.count > 1 ? 's' : ''})
+          <div style={{ marginTop: '20px', padding: '14px', borderRadius: '8px', backgroundColor: '#0c101a', border: '1px solid #2a354c' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#34d399', fontSize: '12px', fontWeight: 600 }}>
+                <Mail size={14} /> Dispatched to {recentDispatch.emailPreview.to}
               </div>
-              <span style={{ fontSize: '11px', color: '#94a3b8' }}>Mock Inbox Preview</span>
+              <span style={{ fontSize: '11px', color: '#64748b' }}>{recentDispatch.count} Document(s)</span>
             </div>
 
-            <div style={{ backgroundColor: '#1e293b', borderRadius: '10px', padding: '16px', border: '1px solid #334155', flex: 1, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px' }}>
-              <div style={{ borderBottom: '1px solid #334155', paddingBottom: '8px' }}>
-                <span style={{ color: '#94a3b8' }}>To: </span>
-                <strong style={{ color: '#f8fafc' }}>{recentDispatch.emailPreview.to}</strong>
-              </div>
-              <div style={{ borderBottom: '1px solid #334155', paddingBottom: '8px' }}>
-                <span style={{ color: '#94a3b8' }}>Subject: </span>
-                <span style={{ color: '#93c5fd', fontWeight: 500 }}>{recentDispatch.emailPreview.subject}</span>
-              </div>
-              
-              <div style={{ fontSize: '12px', color: '#cbd5e1', margin: '4px 0' }}>
-                Individual Document Signing Links:
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '180px', overflowY: 'auto' }} className="custom-scrollbar">
-                {recentDispatch.documents.map((item, idx) => (
-                  <div key={item.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 10px', backgroundColor: '#0f172a', borderRadius: '6px', border: '1px solid #334155' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflow: 'hidden' }}>
-                      <span style={{ color: '#3b82f6', fontWeight: 700, fontSize: '11px' }}>#{idx + 1}</span>
-                      <span style={{ color: '#f8fafc', fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '180px' }}>{item.fileName}</span>
-                    </div>
-                    <div style={{ display: 'flex', gap: '6px' }}>
-                      <button
-                        onClick={() => onNavigateToSign(item.id)}
-                        style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '5px 10px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '4px', border: 'none', fontSize: '11px', fontWeight: 600 }}
-                      >
-                        <ExternalLink size={12} /> Sign Now
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              {recentDispatch.documents.map((item) => (
+                <div key={item.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 10px', backgroundColor: '#171d2e', borderRadius: '4px', border: '1px solid #1e2638' }}>
+                  <span style={{ color: '#f8fafc', fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.fileName}</span>
+                  <button
+                    onClick={() => onNavigateToSign(item.id)}
+                    style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 8px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '4px', border: 'none', fontSize: '11px', fontWeight: 600 }}
+                  >
+                    <ExternalLink size={11} /> Open Signer View
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
         )}
 
       </div>
 
-      {/* Live Documents Tracker Table */}
-      <div style={{ backgroundColor: '#111827', borderRadius: '16px', border: '1px solid #1f293d', padding: '24px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', flexWrap: 'wrap', gap: '12px' }}>
+      {/* Execution Tracker & Documents List */}
+      <div style={{ backgroundColor: '#101420', borderRadius: '12px', border: '1px solid #1e2638', padding: '24px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#f8fafc', margin: 0 }}>
+              <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#f8fafc', margin: 0, letterSpacing: '-0.2px' }}>
                 Documents & Execution Status
               </h2>
               {documents.length > 0 && (
-                <span style={{ fontSize: '12px', padding: '2px 8px', borderRadius: '12px', backgroundColor: '#1e293b', border: '1px solid #334155', color: '#93c5fd', fontWeight: 600 }}>
-                  {documents.length} documents • Scrollable View
+                <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '12px', backgroundColor: '#171d2e', border: '1px solid #1e2638', color: '#93c5fd', fontWeight: 600 }}>
+                  {documents.length} items • Scrollable
                 </span>
               )}
             </div>
-            <p style={{ fontSize: '13px', color: '#94a3b8', margin: '4px 0 0' }}>
-              Track signatures and download returned documents in real time.
+            <p style={{ fontSize: '12px', color: '#64748b', margin: '3px 0 0' }}>
+              Real-time audit log of dispatched and executed contracts.
             </p>
           </div>
 
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div style={{ display: 'flex', gap: '6px' }}>
             <button
               onClick={handleSeedData}
               disabled={isSeeding}
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
-                padding: '6px 12px',
-                backgroundColor: '#1e293b',
-                border: '1px solid #334155',
+                gap: '5px',
+                padding: '5px 10px',
+                backgroundColor: '#171d2e',
+                border: '1px solid #1e2638',
                 borderRadius: '6px',
                 color: '#93c5fd',
-                fontSize: '12px'
+                fontSize: '11px'
               }}
             >
-              <Sparkles size={13} /> {isSeeding ? 'Seeding...' : '+ Add 20 Samples'}
+              <Sparkles size={12} /> {isSeeding ? 'Seeding...' : '+ Add 20 Samples'}
             </button>
             <button
               onClick={fetchDocuments}
@@ -869,23 +842,23 @@ function RequesterDashboard({ onNavigateToSign }: { onNavigateToSign: (docId: st
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
-                padding: '6px 12px',
-                backgroundColor: '#1e293b',
-                border: '1px solid #334155',
+                gap: '5px',
+                padding: '5px 10px',
+                backgroundColor: '#171d2e',
+                border: '1px solid #1e2638',
                 borderRadius: '6px',
                 color: '#cbd5e1',
-                fontSize: '12px'
+                fontSize: '11px'
               }}
             >
-              <RefreshCw size={13} className={loadingDocs ? 'animate-spin' : ''} /> {loadingDocs ? 'Refreshing...' : 'Refresh'}
+              <RefreshCw size={12} className={loadingDocs ? 'animate-spin' : ''} /> {loadingDocs ? 'Refreshing...' : 'Refresh'}
             </button>
           </div>
         </div>
 
         {documents.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '36px 0', color: '#64748b', fontSize: '14px' }}>
-            No documents dispatched yet. Upload PDF files above to begin.
+          <div style={{ textAlign: 'center', padding: '32px 0', color: '#64748b', fontSize: '13px' }}>
+            No documents dispatched yet. Upload a PDF file above to begin.
           </div>
         ) : (
           <div 
@@ -894,55 +867,55 @@ function RequesterDashboard({ onNavigateToSign }: { onNavigateToSign: (docId: st
               overflowX: 'auto',
               overflowY: 'auto',
               maxHeight: '440px',
-              border: '1px solid #1f293d',
-              borderRadius: '8px',
+              border: '1px solid #1e2638',
+              borderRadius: '6px',
               position: 'relative'
             }}
           >
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
-              <thead style={{ position: 'sticky', top: 0, backgroundColor: '#111827', zIndex: 10, borderBottom: '2px solid #1f293d' }}>
-                <tr style={{ color: '#94a3b8' }}>
-                  <th style={{ padding: '12px 14px', backgroundColor: '#111827' }}>Document Name</th>
-                  <th style={{ padding: '12px 14px', backgroundColor: '#111827' }}>Target Signer</th>
-                  <th style={{ padding: '12px 14px', backgroundColor: '#111827' }}>Status</th>
-                  <th style={{ padding: '12px 14px', backgroundColor: '#111827' }}>Created</th>
-                  <th style={{ padding: '12px 14px', textAlign: 'right', backgroundColor: '#111827' }}>Actions</th>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '12px' }}>
+              <thead style={{ position: 'sticky', top: 0, backgroundColor: '#101420', zIndex: 10, borderBottom: '1px solid #1e2638' }}>
+                <tr style={{ color: '#64748b' }}>
+                  <th style={{ padding: '10px 12px', backgroundColor: '#101420', fontWeight: 600 }}>Document Name</th>
+                  <th style={{ padding: '10px 12px', backgroundColor: '#101420', fontWeight: 600 }}>Target Signer</th>
+                  <th style={{ padding: '10px 12px', backgroundColor: '#101420', fontWeight: 600 }}>Status</th>
+                  <th style={{ padding: '10px 12px', backgroundColor: '#101420', fontWeight: 600 }}>Created</th>
+                  <th style={{ padding: '10px 12px', textAlign: 'right', backgroundColor: '#101420', fontWeight: 600 }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {documents.map(d => {
                   const isDone = d.status === 'completed';
                   return (
-                    <tr key={d.id} style={{ borderBottom: '1px solid #1f293d' }}>
-                      <td style={{ padding: '14px', fontWeight: 600, color: '#f8fafc' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <FileText size={16} color={isDone ? '#34d399' : '#60a5fa'} />
-                          {d.title}
+                    <tr key={d.id} style={{ borderBottom: '1px solid #151a2a', transition: 'background-color 0.15s ease' }}>
+                      <td style={{ padding: '11px 12px', fontWeight: 500, color: '#f8fafc' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <FileText size={14} color={isDone ? '#34d399' : '#60a5fa'} />
+                          <span style={{ maxWidth: '240px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.title}</span>
                         </div>
                       </td>
-                      <td style={{ padding: '14px', color: '#cbd5e1' }}>{d.signer_email}</td>
-                      <td style={{ padding: '14px' }}>
+                      <td style={{ padding: '11px 12px', color: '#94a3b8' }}>{d.signer_email}</td>
+                      <td style={{ padding: '11px 12px' }}>
                         <span style={{
                           display: 'inline-flex',
                           alignItems: 'center',
                           gap: '4px',
-                          padding: '3px 8px',
+                          padding: '2px 8px',
                           borderRadius: '12px',
-                          fontSize: '12px',
-                          fontWeight: 600,
-                          backgroundColor: isDone ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)',
+                          fontSize: '11px',
+                          fontWeight: 500,
+                          backgroundColor: isDone ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)',
                           color: isDone ? '#34d399' : '#fbbf24',
-                          border: isDone ? '1px solid rgba(16,185,129,0.3)' : '1px solid rgba(245,158,11,0.3)'
+                          border: isDone ? '1px solid rgba(16,185,129,0.25)' : '1px solid rgba(245,158,11,0.25)'
                         }}>
-                          {isDone ? <CheckCircle2 size={12} /> : <Clock size={12} />}
-                          {isDone ? 'Signed & Returned' : 'Pending Signature'}
+                          {isDone ? <CheckCircle2 size={11} /> : <Clock size={11} />}
+                          {isDone ? 'Signed & Returned' : 'Pending'}
                         </span>
                       </td>
-                      <td style={{ padding: '14px', color: '#94a3b8' }}>
+                      <td style={{ padding: '11px 12px', color: '#64748b' }}>
                         {d.created_at ? new Date(d.created_at).toLocaleDateString() : 'Recent'}
                       </td>
-                      <td style={{ padding: '14px', textAlign: 'right' }}>
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                      <td style={{ padding: '11px 12px', textAlign: 'right' }}>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                           {isDone ? (
                             <a
                               href={`${API_BASE}/api/download/${d.id}`}
@@ -950,17 +923,17 @@ function RequesterDashboard({ onNavigateToSign }: { onNavigateToSign: (docId: st
                               style={{
                                 display: 'inline-flex',
                                 alignItems: 'center',
-                                gap: '6px',
-                                padding: '6px 12px',
+                                gap: '4px',
+                                padding: '4px 10px',
                                 backgroundColor: '#10b981',
                                 color: '#fff',
-                                borderRadius: '6px',
+                                borderRadius: '4px',
                                 textDecoration: 'none',
-                                fontSize: '12px',
-                                fontWeight: 600
+                                fontSize: '11px',
+                                fontWeight: 500
                               }}
                             >
-                              <Download size={13} /> Download Signed PDF
+                              <Download size={12} /> Download PDF
                             </a>
                           ) : (
                             <button
@@ -968,49 +941,39 @@ function RequesterDashboard({ onNavigateToSign }: { onNavigateToSign: (docId: st
                               style={{
                                 display: 'inline-flex',
                                 alignItems: 'center',
-                                gap: '4px',
-                                padding: '6px 12px',
-                                backgroundColor: '#1e293b',
-                                border: '1px solid #334155',
-                                borderRadius: '6px',
+                                gap: '3px',
+                                padding: '4px 10px',
+                                backgroundColor: '#171d2e',
+                                border: '1px solid #1e2638',
+                                borderRadius: '4px',
                                 color: '#93c5fd',
-                                fontSize: '12px'
+                                fontSize: '11px',
+                                fontWeight: 500
                               }}
                             >
-                              Sign <ChevronRight size={12} />
+                              Sign <ChevronRight size={11} />
                             </button>
                           )}
 
                           {/* Close/Remove Document Button */}
                           <button
                             onClick={(e) => handleDeleteDocument(d.id, e)}
-                            title="Close and remove document"
+                            title="Remove document"
                             style={{
                               display: 'inline-flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              padding: '6px 8px',
-                              backgroundColor: '#1e293b',
-                              border: '1px solid #334155',
-                              borderRadius: '6px',
-                              color: '#94a3b8',
+                              padding: '4px 6px',
+                              backgroundColor: '#171d2e',
+                              border: '1px solid #1e2638',
+                              borderRadius: '4px',
+                              color: '#64748b',
                               cursor: 'pointer',
-                              fontSize: '12px',
-                              gap: '4px',
-                              transition: 'all 0.2s ease'
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.2)';
-                              e.currentTarget.style.color = '#ef4444';
-                              e.currentTarget.style.borderColor = '#ef4444';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = '#1e293b';
-                              e.currentTarget.style.color = '#94a3b8';
-                              e.currentTarget.style.borderColor = '#334155';
+                              fontSize: '11px',
+                              gap: '3px'
                             }}
                           >
-                            <X size={13} /> Close
+                            <X size={11} />
                           </button>
                         </div>
                       </td>

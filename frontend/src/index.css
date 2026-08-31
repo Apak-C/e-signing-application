@@ -1,24 +1,27 @@
-@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Inter:wght@400;500;600;700&family=Great+Vibes&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --bg-main: #0b0f19;
-  --bg-card: #111827;
-  --bg-input: #1e293b;
-  --bg-hover: #334155;
-  --border-color: #1f293d;
+  --bg-main: #090c14;
+  --bg-card: #101420;
+  --bg-card-hover: #151a2a;
+  --bg-input: #171d2e;
+  --bg-input-focus: #1c2438;
+  --border-subtle: #1e2638;
+  --border-medium: #2a354c;
   --border-focus: #3b82f6;
+  
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
-  --accent-blue: #2563eb;
-  --accent-blue-hover: #1d4ed8;
-  --accent-teal: #0d9488;
+  
+  --accent-primary: #3b82f6;
+  --accent-primary-hover: #2563eb;
   --accent-success: #10b981;
   --accent-warning: #f59e0b;
   --accent-danger: #ef4444;
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-cursive: 'Caveat', cursive;
-  --font-formal: 'Great Vibes', cursive;
 }
 
 * {
@@ -33,6 +36,8 @@ body {
   font-family: var(--font-sans);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
 }
 
 #root {
@@ -44,43 +49,49 @@ body {
 button {
   font-family: inherit;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:active {
+  transform: translateY(1px);
 }
 
 input, select, textarea {
   font-family: inherit;
+  transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input:focus, textarea:focus {
+  outline: none;
+  border-color: var(--border-focus) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
 }
 
 .signature-font-caveat {
   font-family: var(--font-cursive);
 }
 
-.signature-font-formal {
-  font-family: var(--font-formal);
-}
-
+/* Minimalist Custom Scrollbar */
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: #3b82f6 #0f172a;
+  scrollbar-color: #2a354c #101420;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #0f172a;
-  border-radius: 6px;
+  background: #101420;
+  border-radius: 4px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #334155;
-  border-radius: 6px;
-  border: 2px solid #0f172a;
+  background: #2a354c;
+  border-radius: 4px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #3b82f6;
 }
-
