@@ -367,12 +367,65 @@ function InteractiveSignerPortal({ documentId, onReturnHome }: { documentId: str
     }
   };
 
+function trimCanvas(canvas: HTMLCanvasElement): string {
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return canvas.toDataURL('image/png');
+  const width = canvas.width;
+  const height = canvas.height;
+  const imgData = ctx.getImageData(0, 0, width, height);
+  const pixels = imgData.data;
+
+  let minX = width;
+  let minY = height;
+  let maxX = 0;
+  let maxY = 0;
+  let hasInk = false;
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const alpha = pixels[(y * width + x) * 4 + 3];
+      if (alpha > 15) {
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+        hasInk = true;
+      }
+    }
+  }
+
+  if (!hasInk) return canvas.toDataURL('image/png');
+
+  const padding = 6;
+  minX = Math.max(0, minX - padding);
+  minY = Math.max(0, minY - padding);
+  maxX = Math.min(width - 1, maxX + padding);
+  maxY = Math.min(height - 1, maxY + padding);
+
+  const cropWidth = maxX - minX + 1;
+  const cropHeight = maxY - minY + 1;
+
+  const croppedCanvas = document.createElement('canvas');
+  croppedCanvas.width = cropWidth;
+  croppedCanvas.height = cropHeight;
+  const croppedCtx = croppedCanvas.getContext('2d');
+  if (!croppedCtx) return canvas.toDataURL('image/png');
+
+  croppedCtx.drawImage(
+    canvas,
+    minX, minY, cropWidth, cropHeight,
+    0, 0, cropWidth, cropHeight
+  );
+
+  return croppedCanvas.toDataURL('image/png');
+}
+
   const handleApplyModalSignature = () => {
     if (!modalCanvasRef.current || !hasModalDrawn) {
       setShowSignatureModal(false);
       return;
     }
-    const dataUrl = modalCanvasRef.current.toDataURL('image/png');
+    const dataUrl = trimCanvas(modalCanvasRef.current);
     setSignatureImageData(dataUrl);
     setHasDrawn(true);
     setShowSignatureModal(false);
@@ -1130,7 +1183,7 @@ function InteractiveSignerPortal({ documentId, onReturnHome }: { documentId: str
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: '#0f172a' }}>
                   <span style={{ color: '#64748b' }}>Signature Stroke:</span>
                   <span style={{ color: signatureImageData ? '#16a34a' : '#ea580c', fontWeight: 600 }}>
-                    {signatureImageData ? '✓ Attached (Black Ink)' : 'Name Stamp Only'}
+                    {signatureImageData ? '✓ Attached' : 'Name Stamp Only'}
                   </span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: '#0f172a' }}>
