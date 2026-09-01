@@ -422,6 +422,6 @@ if (IS_PRODUCTION) {
 }
 
 if (import.meta.main) {
-  app.listen(PORT);
-  console.log(`InkFlow Backend running at ${app.server?.hostname}:${app.server?.port}`);
+  app.listen({ port: PORT, hostname: '0.0.0.0' });
+  console.log(`InkFlow Backend running at http://0.0.0.0:${PORT}`);
 }
