@@ -1,5 +1,10 @@
 # InkFlow — Modern E-Signing & Document Execution Platform
 
+[![CI](https://github.com/Apak-C/e-signing-application/actions/workflows/ci.yml/badge.svg)](https://github.com/Apak-C/e-signing-application/actions)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-e--signing--application.onrender.com-success?style=for-the-badge&logo=render)](https://e-signing-application.onrender.com)
+
+**Live Application URL**: [https://e-signing-application.onrender.com](https://e-signing-application.onrender.com)
+
 A full-stack, enterprise-grade digital document signing and execution application built with React 19, TypeScript, Vite, Elysia JS, Bun, SQLite, PDF.js, and pdf-lib.
 
 ---
