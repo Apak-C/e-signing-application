@@ -2,10 +2,26 @@ import { Elysia, t } from 'elysia';
 import { cors } from '@elysiajs/cors';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { Database } from 'bun:sqlite';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, existsSync } from 'node:fs';
+import { join } from 'node:path';
 
 // Ensure storage directory exists
 mkdirSync('./storage', { recursive: true });
+
+// Dynamic base URL for production vs development
+const PORT = Number(process.env.PORT) || 3000;
+const getBaseUrl = () => {
+  if (process.env.RENDER_EXTERNAL_URL) return process.env.RENDER_EXTERNAL_URL;
+  return `http://localhost:${PORT}`;
+};
+const getFrontendUrl = () => {
+  if (process.env.RENDER_EXTERNAL_URL) return process.env.RENDER_EXTERNAL_URL;
+  return 'http://localhost:5173';
+};
+
+// Check if frontend dist exists (production mode)
+const FRONTEND_DIST = join(import.meta.dir, '../../frontend/dist');
+const IS_PRODUCTION = existsSync(FRONTEND_DIST);
 
 export const db = new Database('blocksign.db');
 db.run(`CREATE TABLE IF NOT EXISTS documents (
@@ -72,7 +88,7 @@ export const app = new Elysia()
 
       const id = crypto.randomUUID();
       const originalPath = `./storage/${id}-${file.name}`;
-      const signUrl = `http://localhost:5173/sign/${id}`;
+      const signUrl = `${getFrontendUrl()}/sign/${id}`;
 
       await Bun.write(originalPath, file);
 
@@ -88,15 +104,17 @@ export const app = new Elysia()
       });
     }
 
+    const firstDoc = uploadedDocs[0]!;
+
     // Mock outgoing email notification dispatch preview
     const emailPreview = {
       to: body.signerEmail,
-      from: 'BlockSign Dispatch <notifications@blocksign.io>',
+      from: 'InkFlow Dispatch <notifications@inkflow.io>',
       subject: uploadedDocs.length === 1 
-        ? `Action Required: Please sign "${uploadedDocs[0].fileName}"`
+        ? `Action Required: Please sign "${firstDoc.fileName}"`
         : `Action Required: ${uploadedDocs.length} documents awaiting your signature`,
-      body: `You have received ${uploadedDocs.length} document(s) for digital signature via BlockSign. Review and execute each document securely via the attached signing link(s).`,
-      link: uploadedDocs[0].signUrl,
+      body: `You have received ${uploadedDocs.length} document(s) for digital signature via InkFlow. Review and execute each document securely via the attached signing link(s).`,
+      link: firstDoc.signUrl,
       documents: uploadedDocs,
       dispatchedAt: now
     };
@@ -106,9 +124,9 @@ export const app = new Elysia()
       count: uploadedDocs.length,
       documents: uploadedDocs,
       // Backward compatibility fields for single upload handlers
-      documentId: uploadedDocs[0].id, 
-      fileName: uploadedDocs[0].fileName,
-      signUrl: uploadedDocs[0].signUrl,
+      documentId: firstDoc.id, 
+      fileName: firstDoc.fileName,
+      signUrl: firstDoc.signUrl,
       emailPreview
     };
   }, {
@@ -135,7 +153,7 @@ export const app = new Elysia()
     return { 
       success: true, 
       document: doc,
-      fileUrl: `http://localhost:3000/api/document/${params.id}/file` 
+      fileUrl: `${getBaseUrl()}/api/document/${params.id}/file` 
     };
   })
 
@@ -188,25 +206,26 @@ export const app = new Elysia()
         return { success: false, error: 'The PDF file contains no pages.' };
       }
 
-      const firstPage = pages[0];
+      const pageIndex = typeof body.pageNumber === 'number' ? Math.max(0, Math.min(pages.length - 1, body.pageNumber - 1)) : 0;
+      const targetPage = (pages[pageIndex] || pages[0])!;
       const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-      const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
       const timestamp = new Date().toISOString();
-      const displayDate = new Date().toLocaleString();
 
       const hasSignatureImage = !!(body.signatureImage && body.signatureImage.startsWith('data:image/'));
+      const posX = typeof body.x === 'number' ? body.x : 55;
+      const posY = typeof body.y === 'number' ? body.y : 65;
 
-      // Draw clean signature overlay without border box
+      // Draw clean signature stamp without Date or Ref lines
       if (hasSignatureImage) {
         try {
           const base64Data = body.signatureImage!.replace(/^data:image\/\w+;base64,/, '');
           const imageBytes = Uint8Array.from(Buffer.from(base64Data, 'base64'));
           const embeddedImage = await pdfDoc.embedPng(imageBytes);
 
-          // Draw the user's actual drawn signature image
-          firstPage.drawImage(embeddedImage, {
-            x: 55,
-            y: 65,
+          // Draw the user's actual drawn signature image at target (x, y)
+          targetPage.drawImage(embeddedImage, {
+            x: posX,
+            y: posY,
             width: 140,
             height: 50,
           });
@@ -214,36 +233,21 @@ export const app = new Elysia()
           console.warn('Could not embed custom signature PNG:', imgErr);
         }
 
-        firstPage.drawText(`Signed by: ${body.signerName}`, {
-          x: 55,
-          y: 50,
-          size: 10,
-          font: helveticaBold,
-          color: rgb(0.1, 0.1, 0.1),
-        });
-
-        firstPage.drawText(`Date: ${displayDate} • Ref: ${params.id.slice(0, 8)}`, {
-          x: 55,
-          y: 38,
-          size: 8,
-          font: helvetica,
-          color: rgb(0.4, 0.4, 0.4),
-        });
-      } else {
-        firstPage.drawText(`Signed by: ${body.signerName}`, {
-          x: 55,
-          y: 55,
+        // Draw signer name directly under the signature image (without 'Signed by:' prefix)
+        targetPage.drawText(body.signerName, {
+          x: posX,
+          y: Math.max(5, posY - 14),
           size: 11,
           font: helveticaBold,
           color: rgb(0.1, 0.1, 0.1),
         });
-
-        firstPage.drawText(`Date: ${displayDate} • Ref: ${params.id.slice(0, 8)}`, {
-          x: 55,
-          y: 40,
-          size: 8.5,
-          font: helvetica,
-          color: rgb(0.4, 0.4, 0.4),
+      } else {
+        targetPage.drawText(body.signerName, {
+          x: posX,
+          y: posY,
+          size: 12,
+          font: helveticaBold,
+          color: rgb(0.1, 0.1, 0.1),
         });
       }
 
@@ -259,8 +263,8 @@ export const app = new Elysia()
       return { 
         success: true, 
         message: 'Document successfully signed and returned to sender', 
-        downloadUrl: `http://localhost:3000/api/download/${params.id}`,
-        fileUrl: `http://localhost:3000/api/document/${params.id}/file`,
+        downloadUrl: `${getBaseUrl()}/api/download/${params.id}`,
+        fileUrl: `${getBaseUrl()}/api/document/${params.id}/file`,
         signedAt: timestamp
       };
     } catch (err: any) {
@@ -274,7 +278,10 @@ export const app = new Elysia()
   }, {
     body: t.Object({
       signerName: t.String(),
-      signatureImage: t.Optional(t.String())
+      signatureImage: t.Optional(t.String()),
+      x: t.Optional(t.Number()),
+      y: t.Optional(t.Number()),
+      pageNumber: t.Optional(t.Number())
     })
   })
 
@@ -310,7 +317,7 @@ export const app = new Elysia()
     return { success: true, message: 'Document removed successfully' };
   })
 
-  // 8. Seed 20 Sample Documents for showcase
+  // 8. Seed 20 Clean Sample Documents for showcase
   .post('/api/seed', async () => {
     const sampleList = [
       { title: 'Non-Disclosure Agreement (NDA).pdf', email: 'sarah.jenkins@techcorp.io', status: 'completed', signer: 'Sarah Jenkins' },
@@ -335,8 +342,7 @@ export const app = new Elysia()
       { title: 'Term Sheet - Series A Financing.pdf', email: 'maya.lin@horizonventures.com', status: 'pending', signer: '' },
     ];
 
-    for (let i = 0; i < sampleList.length; i++) {
-      const item = sampleList[i];
+    sampleList.forEach((item, i) => {
       const id = `sample-${crypto.randomUUID()}`;
       const originalPath = `./storage/${id}-${item.title}`;
       const signedPath = item.status === 'completed' ? `./storage/signed-${id}.pdf` : null;
@@ -344,39 +350,63 @@ export const app = new Elysia()
       const createdDate = new Date(Date.now() - (sampleList.length - i) * 3600000 * 4).toISOString();
       const signedDate = item.status === 'completed' ? new Date(Date.now() - (sampleList.length - i) * 3600000 * 2).toISOString() : null;
 
-      // Create a lightweight valid sample PDF
-      const pdfDoc = await PDFDocument.create();
-      const page = pdfDoc.addPage([500, 600]);
-      page.drawText(`BlockSign Document: ${item.title}`, { x: 50, y: 550, size: 16 });
-      page.drawText(`Recipient: ${item.email}`, { x: 50, y: 520, size: 12 });
-      page.drawText(`Dispatched: ${new Date(createdDate).toLocaleString()}`, { x: 50, y: 490, size: 10 });
+      // Create a clean valid original sample PDF without any signature stamp
+      PDFDocument.create().then(async (pdfDoc) => {
+        const page = pdfDoc.addPage([500, 600]);
+        page.drawText(`InkFlow Document: ${item.title}`, { x: 50, y: 550, size: 16 });
+        page.drawText(`Recipient: ${item.email}`, { x: 50, y: 520, size: 12 });
+        page.drawText(`Dispatched: ${new Date(createdDate).toLocaleString()}`, { x: 50, y: 490, size: 10 });
 
-      if (item.status === 'completed') {
-        page.drawRectangle({
-          x: 45, y: 40, width: 320, height: 55,
-          borderColor: rgb(0.12, 0.44, 0.98), borderWidth: 1.5,
-          color: rgb(0.96, 0.98, 1.0), opacity: 0.95
-        });
-        page.drawText(`Signed by: ${item.signer}`, { x: 55, y: 68, size: 11, color: rgb(0.1, 0.1, 0.1) });
-        page.drawText(`Date: ${new Date(signedDate!).toLocaleString()} • Ref: ${id.slice(0, 8)}`, { x: 55, y: 50, size: 8.5, color: rgb(0.4, 0.4, 0.4) });
-      }
+        const originalBytes = await pdfDoc.save();
+        await Bun.write(originalPath, originalBytes);
 
-      const pdfBytes = await pdfDoc.save();
-      await Bun.write(originalPath, pdfBytes);
-      if (signedPath) {
-        await Bun.write(signedPath, pdfBytes);
-      }
+        // If completed, create signed version with clean signer name only (no Date, Ref, or Signed by: prefix)
+        if (item.status === 'completed' && signedPath) {
+          const signedDoc = await PDFDocument.load(originalBytes);
+          const signedPage = signedDoc.getPages()[0]!;
+          const font = await signedDoc.embedFont(StandardFonts.HelveticaBold);
+          signedPage.drawText(item.signer, { x: 55, y: 65, size: 12, font, color: rgb(0.1, 0.1, 0.1) });
+          const signedBytes = await signedDoc.save();
+          await Bun.write(signedPath, signedBytes);
+        }
 
-      db.run(
-        'INSERT INTO documents (id, title, original_path, signed_path, status, signer_email, created_at, signed_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-        [id, item.title, originalPath, signedPath, item.status, item.email, createdDate, signedDate]
-      );
-    }
+        db.run(
+          'INSERT INTO documents (id, title, original_path, signed_path, status, signer_email, created_at, signed_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+          [id, item.title, originalPath, signedPath, item.status, item.email, createdDate, signedDate]
+        );
+      });
+    });
 
-    return { success: true, message: 'Seeded 20 sample documents successfully', count: sampleList.length };
+    return { success: true, message: 'Seeded 20 clean sample documents successfully', count: sampleList.length };
   });
 
+// Serve frontend static files in production
+if (IS_PRODUCTION) {
+  app
+    .get('/assets/*', async ({ params, set }) => {
+      const filePath = join(FRONTEND_DIST, 'assets', (params as any)['*']);
+      const file = Bun.file(filePath);
+      if (await file.exists()) {
+        return file;
+      }
+      set.status = 404;
+      return 'Not found';
+    })
+    .get('/favicon.svg', async () => Bun.file(join(FRONTEND_DIST, 'favicon.svg')))
+    .get('/logo.svg', async () => Bun.file(join(FRONTEND_DIST, 'logo.svg')))
+    .get('/*', async ({ path, set }) => {
+      // Try to serve exact static file first
+      const exactFile = Bun.file(join(FRONTEND_DIST, path));
+      if (await exactFile.exists()) {
+        return exactFile;
+      }
+      // SPA fallback: serve index.html for all non-API routes
+      return Bun.file(join(FRONTEND_DIST, 'index.html'));
+    });
+  console.log('Production mode: serving frontend from', FRONTEND_DIST);
+}
+
 if (import.meta.main) {
-  app.listen(3000);
-  console.log(`BlockSign Backend running at ${app.server?.hostname}:${app.server?.port}`);
+  app.listen(PORT);
+  console.log(`InkFlow Backend running at ${app.server?.hostname}:${app.server?.port}`);
 }

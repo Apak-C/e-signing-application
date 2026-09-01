@@ -1,27 +1,41 @@
-@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  --bg-main: #090c14;
-  --bg-card: #101420;
-  --bg-card-hover: #151a2a;
-  --bg-input: #171d2e;
-  --bg-input-focus: #1c2438;
-  --border-subtle: #1e2638;
-  --border-medium: #2a354c;
-  --border-focus: #3b82f6;
+  --bg-main: #fafbfc;
+  --bg-subtle: #f1f5f9;
+  --bg-card: #ffffff;
+  --bg-card-hover: #fff5f5;
+  --bg-input: #ffffff;
+  --bg-input-focus: #ffffff;
+  --border-subtle: #e2e8f0;
+  --border-medium: #cbd5e1;
+  --border-focus: #f43f5e;
   
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
   --text-muted: #64748b;
   
-  --accent-primary: #3b82f6;
-  --accent-primary-hover: #2563eb;
+  /* Rich Light Red / Rose Accent Palette */
+  --accent-primary: #f43f5e;
+  --accent-primary-dark: #e11d48;
+  --accent-primary-hover: #be123c;
+  --accent-gradient: linear-gradient(135deg, #fb7185 0%, #f43f5e 50%, #e11d48 100%);
+  --accent-gradient-subtle: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
+  --accent-tint: rgba(244, 63, 94, 0.08);
+  --accent-tint-hover: rgba(244, 63, 94, 0.14);
+  --accent-glow: 0 4px 20px rgba(244, 63, 94, 0.28);
+  --accent-glow-lg: 0 8px 30px rgba(244, 63, 94, 0.35);
+
   --accent-success: #10b981;
   --accent-warning: #f59e0b;
   --accent-danger: #ef4444;
   
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-cursive: 'Caveat', cursive;
+
+  --card-radius: 20px;
+  --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 20px 40px -12px rgba(15, 23, 42, 0.06), 0 0 0 1px rgba(226, 232, 240, 0.75);
+  --card-shadow-hover: 0 8px 16px -2px rgba(0, 0, 0, 0.04), 0 24px 48px -12px rgba(244, 63, 94, 0.08), 0 0 0 1px rgba(244, 63, 94, 0.3);
 }
 
 * {
@@ -37,61 +51,276 @@ body {
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  line-height: 1.5;
+  line-height: 1.6;
+  position: relative;
+  overflow-x: hidden;
 }
 
 #root {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
-button {
-  font-family: inherit;
+/* Ambient Radial Glow Spheres */
+.ambient-glow-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.ambient-sphere-top-right {
+  position: absolute;
+  top: -160px;
+  right: -100px;
+  width: 650px;
+  height: 650px;
+  background: radial-gradient(circle, rgba(244, 63, 94, 0.12) 0%, rgba(253, 164, 175, 0.06) 45%, transparent 70%);
+  filter: blur(50px);
+  border-radius: 50%;
+}
+
+.ambient-sphere-mid-left {
+  position: absolute;
+  top: 35%;
+  left: -200px;
+  width: 700px;
+  height: 700px;
+  background: radial-gradient(circle, rgba(251, 113, 133, 0.09) 0%, rgba(254, 205, 211, 0.04) 50%, transparent 70%);
+  filter: blur(60px);
+  border-radius: 50%;
+}
+
+.ambient-sphere-bottom-right {
+  position: absolute;
+  bottom: -150px;
+  right: 15%;
+  width: 580px;
+  height: 580px;
+  background: radial-gradient(circle, rgba(244, 63, 94, 0.08) 0%, rgba(255, 228, 230, 0.03) 45%, transparent 70%);
+  filter: blur(50px);
+  border-radius: 50%;
+}
+
+/* Typography & Accent Text */
+.gradient-text-accent {
+  background: linear-gradient(135deg, #fb7185 0%, #f43f5e 50%, #e11d48 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+/* Floating SaaS Cards */
+.saas-card {
+  background-color: #ffffff;
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  z-index: 1;
+}
+
+.saas-card:hover {
+  box-shadow: var(--card-shadow-hover);
+}
+
+/* Pill Badges */
+.pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  background-color: rgba(244, 63, 94, 0.08);
+  color: #e11d48;
+  border: 1px solid rgba(244, 63, 94, 0.2);
+  transition: all 0.2s ease;
+}
+
+.pill-badge-subtle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+/* Pill Buttons */
+.pill-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  background: var(--accent-gradient);
+  border: none;
+  box-shadow: var(--accent-glow);
   cursor: pointer;
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-button:active {
-  transform: translateY(1px);
+.pill-btn-primary:hover:not(:disabled) {
+  transform: translateY(-1.5px);
+  box-shadow: var(--accent-glow-lg);
+  filter: brightness(1.04);
 }
 
+.pill-btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.pill-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+  background: #94a3b8;
+}
+
+.pill-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: 9999px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #475569;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pill-btn-secondary:hover {
+  background-color: #f8fafc;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+/* Form Inputs Focus */
 input, select, textarea {
   font-family: inherit;
-  transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 input:focus, textarea:focus {
   outline: none;
   border-color: var(--border-focus) !important;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+  box-shadow: 0 0 0 3.5px rgba(244, 63, 94, 0.14) !important;
 }
 
 .signature-font-caveat {
   font-family: var(--font-cursive);
 }
 
-/* Minimalist Custom Scrollbar */
+/* Minimalist Light Custom Scrollbar */
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: #2a354c #101420;
+  scrollbar-color: #cbd5e1 #f1f5f9;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #101420;
+  background: #f1f5f9;
   border-radius: 4px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #2a354c;
+  background: #cbd5e1;
   border-radius: 4px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #3b82f6;
+  background: #f43f5e;
+}
+
+/* Fixed Permanent Scrollable Dashboard Table */
+.dashboard-fixed-table-box {
+  height: 380px;
+  max-height: 380px;
+  min-height: 380px;
+  overflow-y: scroll !important;
+  overflow-x: auto;
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  background-color: #ffffff;
+  position: relative;
+}
+
+/* Responsive Utilities */
+@media (max-width: 900px) {
+  .signing-workspace-layout {
+    flex-direction: column !important;
+    height: auto !important;
+    min-height: 100vh !important;
+    overflow-y: auto !important;
+  }
+  
+  .signing-pdf-pane {
+    flex: 1 1 auto !important;
+    min-height: 550px !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--border-subtle) !important;
+  }
+
+  .signing-studio-sidebar {
+    width: 100% !important;
+    flex: 0 0 auto !important;
+    border-left: none !important;
+    height: auto !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .dashboard-wrapper {
+    padding: 24px 14px 60px !important;
+  }
+
+  .saas-card {
+    padding: 20px 16px !important;
+    border-radius: 16px !important;
+  }
+
+  .signing-header-nav {
+    padding: 0 14px !important;
+  }
+
+  .signing-header-coords {
+    display: none !important;
+  }
+
+  .modal-dialog-box {
+    width: 96vw !important;
+    max-width: 96vw !important;
+    margin: 10px !important;
+    border-radius: 16px !important;
+  }
+
+  .modal-canvas-box canvas {
+    height: 180px !important;
+  }
 }

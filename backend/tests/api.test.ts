@@ -5,7 +5,7 @@ import { PDFDocument } from "pdf-lib";
 describe("BlockSign Backend API", () => {
   test("Health check returns correct runtime", async () => {
     const response = await app.handle(new Request("http://localhost/health"));
-    const data = await response.json();
+    const data: any = await response.json();
     expect(response.status).toBe(200);
     expect(data.status).toEqual("ok");
     expect(data.runtime).toEqual("bun");
@@ -33,7 +33,7 @@ describe("BlockSign Backend API", () => {
         body: formData,
       })
     );
-    const uploadData = await uploadRes.json();
+    const uploadData: any = await uploadRes.json();
     expect(uploadRes.status).toBe(200);
     expect(uploadData.success).toBe(true);
     expect(uploadData.count).toBe(2);
@@ -58,7 +58,7 @@ describe("BlockSign Backend API", () => {
         }),
       })
     );
-    const signData = await signRes.json();
+    const signData: any = await signRes.json();
     expect(signRes.status).toBe(200);
     expect(signData.success).toBe(true);
 
@@ -66,5 +66,24 @@ describe("BlockSign Backend API", () => {
     const downloadRes = await app.handle(new Request(`http://localhost/api/download/${docId1}`));
     expect(downloadRes.status).toBe(200);
     expect(downloadRes.headers.get("Content-Type")).toBe("application/pdf");
+
+    // 6. Sign document with custom (x, y) placement coordinates
+    const docId2 = uploadData.documents[1].id;
+    const signCoordRes = await app.handle(
+      new Request(`http://localhost/api/sign/${docId2}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          signerName: "Elena Rostova",
+          signatureImage: samplePng,
+          x: 180,
+          y: 240,
+          pageNumber: 1
+        }),
+      })
+    );
+    const signCoordData: any = await signCoordRes.json();
+    expect(signCoordRes.status).toBe(200);
+    expect(signCoordData.success).toBe(true);
   });
 });
