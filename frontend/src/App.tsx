@@ -570,11 +570,6 @@ function InteractiveSignerPortal({ documentId, onReturnHome }: { documentId: str
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#475569' }}>
               <Eye size={14} color="#e11d48" />
               <span style={{ fontWeight: 600, color: '#0f172a' }}>Interactive Viewer</span>
-              {!isCompleted && (
-                <span className="pill-badge" style={{ fontSize: '10.5px', padding: '2px 8px' }}>
-                  Click or drag stamp to position
-                </span>
-              )}
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -765,9 +760,6 @@ function InteractiveSignerPortal({ documentId, onReturnHome }: { documentId: str
             <div style={{ padding: '26px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
               
               <div>
-                <div className="pill-badge" style={{ marginBottom: '8px', fontSize: '11px' }}>
-                  <PenTool size={11} /> Digital Signature
-                </div>
                 <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', margin: 0, letterSpacing: '-0.3px' }}>
                   Execute Document
                 </h2>
