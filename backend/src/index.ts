@@ -217,27 +217,42 @@ export const app = new Elysia()
 
       // Draw clean signature stamp without Date or Ref lines
       if (hasSignatureImage) {
+        let drawWidth = 140;
+        let drawHeight = 45;
         try {
           const base64Data = body.signatureImage!.replace(/^data:image\/\w+;base64,/, '');
           const imageBytes = Uint8Array.from(Buffer.from(base64Data, 'base64'));
           const embeddedImage = await pdfDoc.embedPng(imageBytes);
 
+          const naturalWidth = embeddedImage.width;
+          const naturalHeight = embeddedImage.height;
+
+          if (naturalWidth && naturalHeight) {
+            const scale = Math.min(140 / naturalWidth, 45 / naturalHeight, 1);
+            drawWidth = naturalWidth * scale;
+            drawHeight = naturalHeight * scale;
+          }
+
           // Draw the user's actual drawn signature image at target (x, y)
           targetPage.drawImage(embeddedImage, {
             x: posX,
             y: posY,
-            width: 140,
-            height: 50,
+            width: drawWidth,
+            height: drawHeight,
           });
         } catch (imgErr) {
           console.warn('Could not embed custom signature PNG:', imgErr);
         }
 
-        // Draw signer name directly under the signature image (without 'Signed by:' prefix)
+        // Center signer name directly under the signature image
+        const textSize = 11;
+        const textWidth = helveticaBold.widthOfTextAtSize(body.signerName, textSize);
+        const textX = posX + (drawWidth - textWidth) / 2;
+
         targetPage.drawText(body.signerName, {
-          x: posX,
+          x: textX,
           y: Math.max(5, posY - 14),
-          size: 11,
+          size: textSize,
           font: helveticaBold,
           color: rgb(0.1, 0.1, 0.1),
         });

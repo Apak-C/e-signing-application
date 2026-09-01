@@ -1,39 +1,42 @@
-# BlockSign — E-Signing & Document Execution Platform
+# InkFlow — Modern E-Signing & Document Execution Platform
 
-BlockSign is a full-stack digital document signing and execution application built with **React, TypeScript, Vite, Elysia JS, Bun, SQLite, and pdf-lib**.
-
----
-
-## Features
-
-- **Upload & Request Signature**: Upload PDF contracts and dispatch email signing notifications.
-- **Dedicated Signer Portal (`/sign/:id`)**: Focused, distraction-free recipient portal with customizable Type or Draw (Canvas) signatures.
-- **Cryptographic PDF Stamping**: High-performance PDF modification with `pdf-lib`, embedding official verification badges, signer credentials, timestamps, and reference IDs directly onto the document.
-- **Real-Time Execution Tracker**: Interactive dashboard tracking status (`Pending` vs `Signed & Returned`), with instant download links, sample seeding, and document removal.
-- **High-Performance Native File Streaming**: Direct file delivery powered by Bun's native file streaming engine.
-
----
-
-## Tech Stack
-
-- **Frontend**: React 19, TypeScript, Vite, Lucide Icons, Canvas Confetti
-- **Backend**: Elysia JS, Bun, Bun SQLite, pdf-lib, @elysiajs/cors
+A full-stack, enterprise-grade digital document signing and execution application built with React 19, TypeScript, Vite, Elysia JS, Bun, SQLite, PDF.js, and pdf-lib.
 
 ---
 
 ## Getting Started
 
-### 1. Backend
+Follow these instructions to set up and run the project locally on your machine.
+
+### Prerequisites
+
+Ensure you have the following installed on your system:
+- [Bun](https://bun.sh/) (latest version recommended)
+- [Node.js](https://nodejs.org/) (v18 or higher)
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/Apak-C/e-signing-application.git
+cd e-signing-application
+```
+
+### 2. Backend Setup
+
+Navigate to the backend directory, install dependencies, and start the development server:
 
 ```bash
 cd backend
 bun install
-bun --watch run src/index.ts
+bun run src/index.ts
 ```
 
-Backend runs on `http://localhost:3000`.
+> The backend server will start at `http://localhost:3000`.
+> SQLite database `inkflow.db` and the `./storage` directory will be initialized automatically.
 
-### 2. Frontend
+### 3. Frontend Setup
+
+Open a new terminal window, navigate to the frontend directory, install dependencies, and start the Vite dev server:
 
 ```bash
 cd frontend
@@ -41,44 +44,100 @@ npm install
 npm run dev
 ```
 
-Frontend runs on `http://localhost:5173`.
+> The frontend development server will start at `http://localhost:5173`.
 
----
+### 4. Running Tests
 
-## Running Tests & Type Checks
+To execute the automated backend unit test suite locally via Bun:
 
-### Backend Unit Tests & TypeScript Check
 ```bash
 cd backend
-bun test            # Runs all 12 unit tests
-bun x tsc --noEmit  # Verifies 0 TypeScript compilation errors
+bun test
 ```
 
-### Frontend Build & Type Check
+To run TypeScript verification across frontend and backend:
+
 ```bash
+# Backend type check
+cd backend
+bun x tsc --noEmit
+
+# Frontend type check & production build
 cd frontend
-bun run build       # Verifies frontend builds with 0 errors
+npm run build
 ```
 
 ---
 
-## Verifying Frontend-Backend Connection (No Errors)
+## Overview & Features
 
-### 1. API Health Check
-Open `http://localhost:3000/health` in your browser or curl:
+InkFlow provides an intuitive, distraction-free workflow for uploading documents, positioning signatures interactively across multi-page PDFs, capturing handwritten signatures, and stamping signed PDFs with high performance.
+
+- **Multi-File Batch Upload**: Upload single or multiple PDF contracts simultaneously and dispatch signing requests.
+- **Interactive Drag-and-Drop Signature Placement**:
+  - Recipients can drag and position their signature box anywhere on the actual PDF canvas.
+  - Multi-page navigation with live page switching.
+  - Real-time PDF point coordinate calculation (X, Y in standard PDF points).
+- **Spacious Drawing Pad**:
+  - Popout drawing modal with touch and mouse support.
+  - Signature baseline guideline for clean, professional signatures.
+  - Smooth stroke rendering with clear and redraw actions.
+- **High-Performance PDF Stamping**:
+  - Uses pdf-lib to burn the signature and centered signer name directly into the original PDF at exact recipient-chosen coordinates and pages.
+  - Generates downloadable, cryptographically sealed signed PDFs.
+- **Real-Time Execution Dashboard**:
+  - Live status tracking (Pending vs Completed).
+  - Instant one-click PDF downloads for completed contracts.
+  - Sample database seeding with pre-configured contracts.
+- **Native Bun Performance & Zero-Dependency UI**:
+  - Elysia JS backend powered by Bun SQLite and native file streaming.
+  - Pure custom SVG icon set with zero bloated third-party icon dependencies.
+  - Automated 12-suite unit and integration test coverage.
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| **Frontend** | React 19, TypeScript, Vite, PDF.js (`pdfjs-dist`), Pure SVG Icons |
+| **Backend** | Elysia JS, Bun runtime, Bun SQLite (`bun:sqlite`), `pdf-lib`, `@elysiajs/cors` |
+| **Testing** | Bun Test runner (`bun test`), TypeScript compiler (`tsc --noEmit`) |
+| **Deployment** | Multi-stage Docker, Render (`render.yaml`), Railway |
+
+---
+
+## API Endpoints Summary
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/health` | Server health check and runtime status |
+| `POST` | `/api/upload` | Upload single or batch PDF contracts |
+| `GET` | `/api/documents` | Retrieve list of all documents with execution status |
+| `GET` | `/api/document/:id` | Fetch specific document metadata |
+| `GET` | `/api/document/:id/file` | Stream original or signed PDF for browser viewing |
+| `POST` | `/api/sign/:id` | Stamp drawn signature onto PDF at given (X, Y, page) |
+| `GET` | `/api/download/:id` | Download finalized signed PDF attachment |
+| `DELETE` | `/api/document/:id` | Delete document and stored PDF files |
+| `POST` | `/api/seed` | Seed database with sample documents |
+
+---
+
+## Docker & Production Deployment
+
+A unified, multi-stage `Dockerfile` is included that builds the frontend and runs the Elysia backend serving both API and static assets from a single container.
+
+### Run with Docker locally:
+
 ```bash
-curl http://localhost:3000/health
-# Response: {"status":"ok","runtime":"bun"}
+docker build -t inkflow .
+docker run -p 3000:3000 inkflow
 ```
 
-### 2. Live In-Browser Verification
-1. Open **`http://localhost:5173`** in your browser.
-2. Press **F12** (or Right Click → Inspect) and open the **Console** & **Network** tabs.
-3. Refresh the page:
-   - You should see `GET http://localhost:3000/api/documents` return status **`200 OK`**.
-   - The **DashBoard** table will display items without any red error banners or console exceptions.
-4. Upload a test PDF and click **Dispatch for Signature**:
-   - `POST http://localhost:3000/api/upload` returns status **`200 OK`**.
-5. Click **Sign** on any contract, draw your signature, and submit:
-   - `POST http://localhost:3000/api/sign/:id` returns status **`200 OK`** and triggers celebratory confetti!
+Visit `http://localhost:3000` to access the full application.
 
+### Deploy to Render / Railway:
+
+1. Push this repository to GitHub.
+2. In Render or Railway, create a new Web Service pointing to your repository.
+3. It will automatically detect the `Dockerfile` and deploy with zero manual setup.
