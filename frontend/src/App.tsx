@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import confetti from 'canvas-confetti';
 import * as pdfjsLib from 'pdfjs-dist';
 import { 
   PenTool, 
@@ -21,7 +20,7 @@ import {
   ZoomOut,
   RotateCcw,
   AlertTriangle
-} from 'lucide-react';
+} from './icons';
 
 // Configure pdf.js worker for browser rendering
 if (typeof window !== 'undefined') {
@@ -328,6 +327,9 @@ function InteractiveSignerPortal({ documentId, onReturnHome }: { documentId: str
     const x = 'touches' in e ? e.touches[0].clientX - rect.left : e.clientX - rect.left;
     const y = 'touches' in e ? e.touches[0].clientY - rect.top : e.clientY - rect.top;
     ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
     ctx.beginPath();
     ctx.moveTo(x, y);
     setIsModalDrawing(true);
@@ -344,6 +346,9 @@ function InteractiveSignerPortal({ documentId, onReturnHome }: { documentId: str
     const x = 'touches' in e ? e.touches[0].clientX - rect.left : e.clientX - rect.left;
     const y = 'touches' in e ? e.touches[0].clientY - rect.top : e.clientY - rect.top;
     ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
     ctx.lineTo(x, y);
     ctx.stroke();
   };
@@ -470,11 +475,6 @@ function InteractiveSignerPortal({ documentId, onReturnHome }: { documentId: str
 
       const data = await res.json().catch(() => null);
       if (res.ok && data?.success) {
-        confetti({
-          particleCount: 90,
-          spread: 80,
-          origin: { y: 0.6 }
-        });
         setIsCompleted(true);
         setPdfTimestamp(Date.now()); // trigger canvas re-render with signed PDF
       } else {
@@ -913,7 +913,7 @@ function InteractiveSignerPortal({ documentId, onReturnHome }: { documentId: str
 
               <div style={{ width: '100%', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '14px', textAlign: 'left', marginBottom: '20px', fontSize: '11.5px' }}>
                 <div style={{ color: '#059669', fontWeight: 700, marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                  <ShieldCheck size={14} /> Verified Audit Entry
+                  <ShieldCheck size={14} /> Execution Summary
                 </div>
                 <div style={{ color: '#334155', marginBottom: '3px' }}>• Signer: {signerName || doc.signer_email}</div>
                 <div style={{ color: '#334155', marginBottom: '3px' }}>• Coordinates: X: {currentPdfCoords.x} pt, Y: {currentPdfCoords.y} pt</div>
@@ -1023,9 +1023,9 @@ function InteractiveSignerPortal({ documentId, onReturnHome }: { documentId: str
                   style={{ width: '100%', height: '240px', display: 'block', cursor: 'crosshair', touchAction: 'none' }}
                 />
 
-                {/* Subtle Signature Baseline Guide */}
-                <div style={{ position: 'absolute', bottom: '40px', left: '40px', right: '40px', height: '1px', borderBottom: '1px dashed #fecdd3', pointerEvents: 'none' }} />
-                <div style={{ position: 'absolute', bottom: '44px', left: '40px', fontSize: '11px', color: '#e11d48', fontWeight: 600, pointerEvents: 'none' }}>
+                {/* Thicker Signature Baseline Guide */}
+                <div style={{ position: 'absolute', bottom: '40px', left: '40px', right: '40px', height: '2px', borderBottom: '2px dashed #fb7185', pointerEvents: 'none' }} />
+                <div style={{ position: 'absolute', bottom: '46px', left: '40px', fontSize: '11.5px', color: '#e11d48', fontWeight: 700, pointerEvents: 'none' }}>
                   ✕ Sign on the line
                 </div>
 
@@ -1419,9 +1419,6 @@ function RequesterDashboard({ onNavigateToSign }: { onNavigateToSign: (docId: st
       <div className="saas-card" style={{ padding: '30px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', flexWrap: 'wrap', gap: '12px' }}>
           <div>
-            <div className="pill-badge" style={{ marginBottom: '8px', fontSize: '11px' }}>
-              <ShieldCheck size={11} /> Audit Log
-            </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <h2 style={{ fontSize: '17px', fontWeight: 700, color: '#0f172a', margin: 0, letterSpacing: '-0.2px' }}>
                 DashBoard
